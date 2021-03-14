@@ -1,0 +1,23 @@
+name: Build and run testsuite
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+jobs:
+  build_test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: [1.13, 1.15]
+    container:
+      image: golang:${{ matrix.go }}-stretch
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Build & run tests
+        run: |
+          make TEST_FLAGS="-timeout 60s -coverprofile cover.out -race -v" test

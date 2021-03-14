@@ -1,7 +1,7 @@
 # vcn  <img align="right" src="https://github.com/vchain-us/vcn/blob/master/docs/img/cn-color.eeadbabe.svg" width="160px"/>
 > **_vChain CodeNotary_**
 
-[![CircleCI](https://circleci.com/gh/vchain-us/vcn.svg?style=shield)](https://circleci.com/gh/vchain-us/vcn)
+[![Build and run testsuite](https://github.com/codenotary/vcn/actions/workflows/build.yaml/badge.svg)](https://github.com/dmacvicar/vcn/actions/workflows/build.yaml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/vchain-us/vcn?style=flat-square)](https://goreportcard.com/report/github.com/vchain-us/vcn)
 [![Go Doc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://godoc.org/github.com/vchain-us/vcn)
 [![Docker pulls](https://img.shields.io/docker/pulls/codenotary/vcn?style=flat-square)](https://hub.docker.com/r/codenotary/vcn)

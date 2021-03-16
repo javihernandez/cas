@@ -12,8 +12,8 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"strings"
 	"strconv"
+	"strings"
 
 	"github.com/fatih/color"
 

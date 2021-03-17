@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/fatih/color"
@@ -449,6 +450,8 @@ func verify(cmd *cobra.Command, a *api.Artifact, keys []string, org string, user
 			meta.StatusUntrusted:   "is untrusted",
 			meta.StatusUnsupported: "is unsupported",
 		}
+
+		viper.Set("exit-code", strconv.Itoa(verification.Status.Int()))
 
 		switch true {
 		case org != "":

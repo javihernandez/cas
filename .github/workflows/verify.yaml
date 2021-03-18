@@ -1,4 +1,4 @@
-name: CodeNotary
+name: Verify the authenticity of commits
 
 on:
   push:

@@ -39,7 +39,6 @@ var CIEnvWhiteList = map[string]int{
 	"CI_REGISTRY":               1,
 	"CI_REGISTRY_IMAGE":         1,
 	"CI_REGISTRY_USER":          1,
-	"CI_REGISTRY_PASSWORD":      1,
 	"CI_RUNNER_ID":              1,
 	"CI_RUNNER_DESCRIPTION":     1,
 	"CI_RUNNER_TAGS":            1,

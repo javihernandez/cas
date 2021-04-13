@@ -10,20 +10,30 @@ package cicontext
 
 import (
 	"os"
-	"strings"
 )
 
+type contextSaver struct {
+	probes []Probe
+}
+
+func NewContextSaver() *contextSaver {
+	return &contextSaver{
+		probes: []Probe{NewGithubProbe(), NewGitlabProbe(), NewJenkinsProbe()},
+	}
+}
+
 // GetCIContextMetadata returns the CI context metadata
-func GetCIContextMetadata() map[string]interface{} {
+func (cs *contextSaver) GetCIContextMetadata() map[string]interface{} {
 	r := map[string]interface{}{}
-	for _, v := range os.Environ() {
-		kv := strings.SplitN(v, "=", 2)
-		if _, ok := CIEnvWhiteList[kv[0]]; ok {
-			if len(kv) == 1 {
-				r[kv[0]] = ""
-			} else {
-				r[kv[0]] = kv[1]
-			}
+	for _, k := range CIEnvWhiteList {
+		if val, exist := os.LookupEnv(k); exist {
+			r[k] = val
+		}
+	}
+	for _, probe := range cs.probes {
+		if probe.Detect() {
+			r[CI_TYPE_KEY_NAME] = probe.GetName()
+			break
 		}
 	}
 	return r

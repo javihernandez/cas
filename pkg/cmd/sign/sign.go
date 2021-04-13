@@ -227,8 +227,11 @@ func runSignWithState(cmd *cobra.Command, args []string, state meta.Status) erro
 
 	metadata := cmd.Flags().Lookup("attr").Value.(mapOpts).StringToInterface()
 
+	// @todo use dependency injection
+	cs := cicontext.NewContextSaver()
+
 	if viper.GetBool("ci-attr") {
-		cicontext.ExtendMetadata(metadata, cicontext.GetCIContextMetadata())
+		cicontext.ExtendMetadata(metadata, cs.GetCIContextMetadata())
 	}
 
 	cmd.SilenceUsage = true

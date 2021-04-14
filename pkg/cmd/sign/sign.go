@@ -11,6 +11,7 @@ package sign
 import (
 	"bufio"
 	"fmt"
+	"github.com/vchain-us/vcn/pkg/cicontext"
 	"os"
 	"strings"
 
@@ -125,6 +126,7 @@ echo my-file | vcn n -`,
 	}
 
 	cmd.Flags().VarP(make(mapOpts), "attr", "a", "add user defined attributes (repeat --attr for multiple entries)")
+	cmd.Flags().Bool("ci-attr", false, meta.VcnLcCIAttribDesc)
 	cmd.Flags().StringP("name", "n", "", "set the asset name")
 	cmd.Flags().BoolP("public", "p", false, "when notarized as public, the asset name and metadata will be visible to everyone")
 	cmd.Flags().String("hash", "", "specify the hash instead of using an asset, if set no ARG(s) can be used")
@@ -224,6 +226,13 @@ func runSignWithState(cmd *cobra.Command, args []string, state meta.Status) erro
 	}
 
 	metadata := cmd.Flags().Lookup("attr").Value.(mapOpts).StringToInterface()
+
+	// @todo use dependency injection
+	cs := cicontext.NewContextSaver()
+
+	if viper.GetBool("ci-attr") {
+		cicontext.ExtendMetadata(metadata, cs.GetCIContextMetadata())
+	}
 
 	cmd.SilenceUsage = true
 

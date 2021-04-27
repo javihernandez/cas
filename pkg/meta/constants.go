@@ -83,6 +83,7 @@ const VcnPrefix string = "vcn"
 // Ledger compliance
 const VcnLCPluginTypeHeaderName string = "lc-plugin-type"
 const VcnLCLedgerHeaderName string = "lc-ledger"
+const VcnLCVersionHeaderName string = "version"
 const VcnLCPluginTypeHeaderValue string = "vcn"
 
 const VcnLcHostFlagDesc string = "if set with host, action will be route to a CodeNotary Ledger Compliance server"

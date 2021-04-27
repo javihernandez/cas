@@ -68,7 +68,17 @@ func NewLcClient(lcApiKey, lcLedger, host, port, lcCertPath string, skipTlsVerif
 		currentOptions = append(currentOptions, defaultOptions...)
 	}
 
-	return sdk.NewLcClient(sdk.ApiKey(lcApiKey), sdk.MetadataPairs([]string{meta.VcnLCLedgerHeaderName, lcLedger}), sdk.Host(host), sdk.Port(p), sdk.Dir(store.CurrentConfigFilePath()), sdk.DialOptions(currentOptions)), nil
+	return sdk.NewLcClient(
+		sdk.ApiKey(lcApiKey),
+		sdk.MetadataPairs([]string{
+			meta.VcnLCLedgerHeaderName, lcLedger,
+			meta.VcnLCVersionHeaderName, meta.Version(),
+		}),
+		sdk.Host(host),
+		sdk.Port(p),
+		sdk.Dir(store.CurrentConfigFilePath()),
+		sdk.DialOptions(currentOptions),
+	), nil
 }
 
 func loadTLSCertificate(certPath string) (credentials.TransportCredentials, error) {

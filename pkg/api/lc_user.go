@@ -42,7 +42,15 @@ func NewLcUser(lcApiKey, lcLedger, host, port, lcCert string, skipTlsVerify bool
 func NewLcUserVolatile(lcApiKey, lcLedger string, host string, port string) *LcUser {
 	p, _ := strconv.Atoi(port)
 	return &LcUser{
-		Client: sdk.NewLcClient(sdk.ApiKey(lcApiKey), sdk.MetadataPairs([]string{meta.VcnLCLedgerHeaderName, lcLedger}), sdk.Host(host), sdk.Port(p), sdk.Dir(store.CurrentConfigFilePath())),
+		Client: sdk.NewLcClient(
+			sdk.ApiKey(lcApiKey),
+			sdk.MetadataPairs([]string{
+				meta.VcnLCLedgerHeaderName, lcLedger,
+				meta.VcnLCVersionHeaderName, meta.Version(),
+			}),
+			sdk.Host(host),
+			sdk.Port(p),
+			sdk.Dir(store.CurrentConfigFilePath())),
 	}
 }
 
@@ -59,7 +67,7 @@ func GetSignerIDByApiKey(lcApiKey string) string {
 	ris := strings.Split(lcApiKey, ".")
 	// new apikey format {friendlySignerID}.{secret}
 	if len(ris) > 1 {
-		return ris[0]
+		return strings.Join(ris[:len(ris)-1], ".")
 	}
 	// old apikey format {secret}
 	hash := sha256.Sum256([]byte(lcApiKey))

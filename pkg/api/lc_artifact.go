@@ -13,17 +13,18 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	immuschema "github.com/codenotary/immudb/pkg/api/schema"
-	"github.com/vchain-us/ledger-compliance-go/schema"
-	"github.com/vchain-us/vcn/pkg/meta"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
 	"time"
+
+	immuschema "github.com/codenotary/immudb/pkg/api/schema"
+	"github.com/vchain-us/ledger-compliance-go/schema"
+	"github.com/vchain-us/vcn/pkg/meta"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 )
 
 func (a Artifact) toLcArtifact() *LcArtifact {
@@ -166,6 +167,9 @@ func (u LcUser) createArtifact(artifact Artifact, status meta.Status, attach []s
 	}
 	aR.Attachments = aRattachment
 	arJson, err := json.Marshal(aR)
+	if err != nil {
+		return false, 0, err
+	}
 
 	md := metadata.Pairs(meta.VcnLCPluginTypeHeaderName, meta.VcnLCPluginTypeHeaderValue)
 	ctx := metadata.NewOutgoingContext(context.Background(), md)

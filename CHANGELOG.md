@@ -4,6 +4,49 @@ All notable changes to this project will be documented in this file. This projec
 ## [Unreleased]
 
 
+<a name="v0.9.5"></a>
+## [v0.9.5] - 2021-04-29
+### Bug Fixes
+- unsuccessful status code
+- fix return error codes on cn.io
+- **pkg:** add version metadata header and fix signer ID extraction from API key to support email addresses as signer IDs
+- **pkg/api:** handle JSON marshal error when creating artifact
+- **pkg/api/verify:** fix pkg api verify
+- **pkg/cicontext:** remove sensitive data
+- **pkg/cmd/login:** fix env var on login
+- **pkg/cmd/sign:** improve attachment container structure
+
+### Changes
+- vcn context ux improvements. closes [#134](https://github.com/vchain-us/vcn/issues/134)
+- fix missing apikey error
+- remove unused import
+- add artifact print date method
+- add proper error handling on notFound or notVerified
+- add lcLedger and signerID parameters on PublicCNLCVerify
+- expose lc verify api and explicit environment vars
+- increase pipeline timeout
+- update ledger-compliance-go dependency to fix missing metadata bug
+- remove 'blockchain' from login message
+- **cmd/verify:** if api-key is revoked status will be shown as revoked in authenticate
+- **pkg/cicontext:** add context probes and minor improvements
+- **pkg/cmd/sign:** add '-' char to enforce pipe mode
+
+### Features
+- add support for ledger compliance env vars. Closes [#628](https://github.com/vchain-us/vcn/issues/628)
+- add ci-attr flag. It permits to save ci context env as metadata
+- add --lc-ledger flag for authenticate and inspect commands when used with cross-ledgers API keys
+- when apikey is revoked authenticate exits with revokedApikey status - 4
+- vcn handle new apikey format{friendlySignerID}.{secret} CNCL
+- revokation infos on signed artifact are returned
+- vcn handles multi attachment to the notarized item. closes [#133](https://github.com/vchain-us/vcn/issues/133)
+- enable file upload
+- add multi files support in pipe
+- **pkg/api:** lc artifact contains uid
+- **pkg/cmd:** authenticate command can download all linked attachments
+- **pkg/cmd/sign:** notarization accepts pipe. closes [#579](https://github.com/vchain-us/vcn/issues/579)
+- **pkg/cmd/verify:** verify accepts uid to specify an artifact in time
+
+
 <a name="v0.9.4"></a>
 ## [v0.9.4] - 2021-02-17
 ### Bug Fixes
@@ -471,11 +514,11 @@ support for multiple keystores in config file and related APIs within the `store
 - **sign:** `VCN_KEY` env variable for signing
 
 
-<a name="0.5.0"></a>
-## [0.5.0] - 2019-06-25
-
 <a name="v0.5.0"></a>
 ## [v0.5.0] - 2019-06-25
+
+<a name="0.5.0"></a>
+## [0.5.0] - 2019-06-25
 ### Bug Fixes
 - ca-certificates for Dockerfile
 - clean other context when user logs in
@@ -718,7 +761,8 @@ this commit introduce the config file with multi-keys support, and a huge refact
 <a name="v.0.1-beta.2"></a>
 ## v.0.1-beta.2 - 2019-02-19
 
-[Unreleased]: https://github.com/vchain-us/vcn/compare/v0.9.4...HEAD
+[Unreleased]: https://github.com/vchain-us/vcn/compare/v0.9.5...HEAD
+[v0.9.5]: https://github.com/vchain-us/vcn/compare/v0.9.4...v0.9.5
 [v0.9.4]: https://github.com/vchain-us/vcn/compare/v0.9.3...v0.9.4
 [v0.9.3]: https://github.com/vchain-us/vcn/compare/v0.9.2...v0.9.3
 [v0.9.2]: https://github.com/vchain-us/vcn/compare/v0.9.1...v0.9.2
@@ -740,9 +784,9 @@ this commit introduce the config file with multi-keys support, and a huge refact
 [v0.5.4]: https://github.com/vchain-us/vcn/compare/v0.5.3...v0.5.4
 [v0.5.3]: https://github.com/vchain-us/vcn/compare/v0.5.2...v0.5.3
 [v0.5.2]: https://github.com/vchain-us/vcn/compare/v0.5.1...v0.5.2
-[v0.5.1]: https://github.com/vchain-us/vcn/compare/0.5.0...v0.5.1
-[0.5.0]: https://github.com/vchain-us/vcn/compare/v0.5.0...0.5.0
-[v0.5.0]: https://github.com/vchain-us/vcn/compare/0.4.3...v0.5.0
+[v0.5.1]: https://github.com/vchain-us/vcn/compare/v0.5.0...v0.5.1
+[v0.5.0]: https://github.com/vchain-us/vcn/compare/0.5.0...v0.5.0
+[0.5.0]: https://github.com/vchain-us/vcn/compare/0.4.3...0.5.0
 [0.4.3]: https://github.com/vchain-us/vcn/compare/0.4.2...0.4.3
 [0.4.2]: https://github.com/vchain-us/vcn/compare/0.4.1...0.4.2
 [0.4.1]: https://github.com/vchain-us/vcn/compare/0.4.0...0.4.1

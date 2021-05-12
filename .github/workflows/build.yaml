@@ -2,22 +2,119 @@ name: Build and run testsuite
 on:
   push:
     branches:
-      - '**'
+      - master
   pull_request:
     branches:
       - '**'
 jobs:
   build_test:
     name: Build & Test
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go: [1.13, 1.15]
-    container:
-      image: golang:${{ matrix.go }}-stretch
+        include:
+          - {os: ubuntu-latest, go: 1.13}
+          - {os: ubuntu-latest, go: 1.15}
+          - {os: windows-latest, go: 1.15}
+          - {os: macos-latest, go: 1.15}
     steps:
       - name: Checkout
         uses: actions/checkout@master
-      - name: Build & run tests
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+      - name: Build
+        run: |
+          make
+      - name: Run tests
         run: |
           make TEST_FLAGS="-timeout 60s -coverprofile cover.out -race -v" test
+      - uses: actions/upload-artifact@v2
+        with:
+          name: vcn-${{ matrix.os }}-go-${{ matrix.go }}
+          path: ${{ github.workspace }}/vcn*
+  cnil_integration_test:
+    name: CNIL integration test
+    needs: build_test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - {os: ubuntu-latest, go: 1.13, exe: vcn}
+          - {os: ubuntu-latest, go: 1.15, exe: vcn}
+          - {os: windows-latest, go: 1.15, exe: vcn.exe}
+          - {os: macos-latest, go: 1.15, exe: vcn}
+    env:
+      CNIL_GITHUB_TEST_API_KEY: ${{ secrets.CNIL_GITHUB_TEST_API_KEY }}
+      CNIL_GITHUB_TEST_HOST: ${{ secrets.CNIL_GITHUB_TEST_HOST }}
+      CNIL_GITHUB_TEST_PORT: ${{ secrets.CNIL_GITHUB_TEST_PORT }}
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: vcn-${{ matrix.os }}-go-${{ matrix.go }}
+          path: ${{ github.workspace }}/bin
+      - name: Set permissions on vcn executable
+        run: |
+          chmod +x ${GITHUB_WORKSPACE}/bin/*
+        shell: bash
+        if: runner.os == 'Linux' || runner.os == 'MacOS'
+      - name: Test vcn operations
+        shell: bash
+        run: |
+          export PATH=$PATH:${GITHUB_WORKSPACE}/bin
+          export VCN_LC_API_KEY=${CNIL_GITHUB_TEST_API_KEY}
+
+          echo "This is some content" > README.txt
+
+          ${{ matrix.exe }} login --lc-host=${CNIL_GITHUB_TEST_HOST} --lc-port=${CNIL_GITHUB_TEST_PORT}
+          ${{ matrix.exe }} n README.txt --lc-host=${CNIL_GITHUB_TEST_HOST} --lc-port=${CNIL_GITHUB_TEST_PORT}
+          ${{ matrix.exe }} a -s github README.txt --lc-host=${CNIL_GITHUB_TEST_HOST} --lc-port=${CNIL_GITHUB_TEST_PORT}
+
+          # unknown signer
+          ${{ matrix.exe }} a -s unknown README.txt --lc-host=${CNIL_GITHUB_TEST_HOST} --lc-port=${CNIL_GITHUB_TEST_PORT} || retval=$?
+          test $retval -eq 2
+
+          # revoked signer
+          ${{ matrix.exe }} a -s revoked README.txt --lc-host=${CNIL_GITHUB_TEST_HOST} --lc-port=${CNIL_GITHUB_TEST_PORT} || retval=$?
+          test $retval -eq 4
+  cn_io_integration_test:
+    name: CodeNotary.io integration test
+    needs: build_test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - {os: ubuntu-latest, go: 1.13, exe: vcn}
+          - {os: ubuntu-latest, go: 1.15, exe: vcn}
+          - {os: windows-latest, go: 1.15, exe: vcn.exe}
+          - {os: macos-latest, go: 1.15, exe: vcn}
+    env:
+      VCN_USER: ${{ secrets.CODENOTARY_IO_VCN_USER }}
+      VCN_PASSWORD: ${{ secrets.CODENOTARY_IO_VCN_PASSWORD }}
+      VCN_NOTARIZATION_PASSWORD: ${{ secrets.CODENOTARY_IO_VCN_PASSWORD }}
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: vcn-${{ matrix.os }}-go-${{ matrix.go }}
+          path: ${{ github.workspace }}/bin
+      - name: Set permissions on vcn executable
+        run: |
+          chmod +x ${GITHUB_WORKSPACE}/bin/*
+        shell: bash
+        if: runner.os == 'Linux' || runner.os == 'MacOS'
+      - name: Test vcn operations
+        shell: bash
+        run: |
+          export PATH=$PATH:${GITHUB_WORKSPACE}/bin
+          export VCN_OTP_EMPTY=1
+
+          echo "This is some content" > README.txt
+          echo "This is some other content" > UNKNOWN.txt
+
+          ${{ matrix.exe }} login
+          ${{ matrix.exe }} n README.txt
+          ${{ matrix.exe }} a README.txt
+
+          # not notarized
+          ${{ matrix.exe }} a UNKNOWN.txt || retval=$?
+          test $retval -eq 2

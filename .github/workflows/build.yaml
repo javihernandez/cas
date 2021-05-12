@@ -77,3 +77,44 @@ jobs:
           # revoked signer
           ${{ matrix.exe }} a -s revoked README.txt --lc-host=${CNIL_GITHUB_TEST_HOST} --lc-port=${CNIL_GITHUB_TEST_PORT} || retval=$?
           test $retval -eq 4
+  cn_io_integration_test:
+    name: CodeNotary.io integration test
+    needs: build_test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - {os: ubuntu-latest, go: 1.13, exe: vcn}
+          - {os: ubuntu-latest, go: 1.15, exe: vcn}
+          - {os: windows-latest, go: 1.15, exe: vcn.exe}
+          - {os: macos-latest, go: 1.15, exe: vcn}
+    env:
+      VCN_USER: $${{ secrets.CODENOTARY_IO_VCN_USER }}
+      VCN_PASSWORD: $${{ secrets.CODENOTARY_IO_VCN_PASSWORD }}
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: vcn-${{ matrix.os }}-go-${{ matrix.go }}
+          path: ${{ github.workspace }}/bin
+      - name: Set permissions on vcn executable
+        run: |
+          chmod +x ${GITHUB_WORKSPACE}/bin/*
+        shell: bash
+        if: runner.os == 'Linux' || runner.os == 'MacOS'
+      - name: Test vcn operations
+        shell: bash
+        run: |
+          export PATH=$PATH:${GITHUB_WORKSPACE}/bin
+          export VCN_NOTARIZATION_PASSWORD_EMPTY=1
+          export VCN_OTP_EMPTY=1
+
+          echo "This is some content" > README.txt
+          echo "This is some other content" > UNKNOWN.txt
+
+          ${{ matrix.exe }} login
+          ${{ matrix.exe }} n README.txt
+          ${{ matrix.exe }} a README.txt
+
+          # not notarized
+          ${{ matrix.exe }} a UNKNOWN.txt || retval=$?
+          test $retval -eq 2

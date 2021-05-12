@@ -106,6 +106,7 @@ jobs:
         shell: bash
         run: |
           export PATH=$PATH:${GITHUB_WORKSPACE}/bin
+          export VCN_OTP_EMPTY=1
 
           echo "This is some content" > README.txt
           echo "This is some other content" > UNKNOWN.txt

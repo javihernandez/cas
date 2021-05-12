@@ -89,8 +89,8 @@ jobs:
           - {os: windows-latest, go: 1.15, exe: vcn.exe}
           - {os: macos-latest, go: 1.15, exe: vcn}
     env:
-      VCN_USER: $${{ secrets.CODENOTARY_IO_VCN_USER }}
-      VCN_PASSWORD: $${{ secrets.CODENOTARY_IO_VCN_PASSWORD }}
+      VCN_USER: ${{ secrets.CODENOTARY_IO_VCN_USER }}
+      VCN_PASSWORD: ${{ secrets.CODENOTARY_IO_VCN_PASSWORD }}
     steps:
       - uses: actions/download-artifact@v2
         with:

@@ -2,7 +2,7 @@ name: Build and run testsuite
 on:
   push:
     branches:
-      - '**'
+      - master
   pull_request:
     branches:
       - '**'

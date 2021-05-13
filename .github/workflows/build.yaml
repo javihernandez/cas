@@ -108,7 +108,7 @@ jobs:
           export PATH=$PATH:${GITHUB_WORKSPACE}/bin
           export VCN_OTP_EMPTY=1
 
-          echo "This is some content" > README.txt
+          echo "This is some content generated in ${GITHUB_ACTION}, ${GITHUB_JOB}, ${GITHUB_RUN_NUMBER}, ${GITHUB_SHA} on ${{ matrix.os }}-${{ matrix.go }}" > README.txt
           echo "This is some other content" > UNKNOWN.txt
 
           ${{ matrix.exe }} login

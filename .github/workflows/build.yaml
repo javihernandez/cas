@@ -70,6 +70,9 @@ jobs:
           ${{ matrix.exe }} n README.txt --lc-host=${CNIL_GITHUB_TEST_HOST} --lc-port=${CNIL_GITHUB_TEST_PORT}
           ${{ matrix.exe }} a -s github README.txt --lc-host=${CNIL_GITHUB_TEST_HOST} --lc-port=${CNIL_GITHUB_TEST_PORT}
 
+          # with CI attributes and attachments
+          ${{ matrix.exe }} n README.txt --lc-host=${CNIL_GITHUB_TEST_HOST} --lc-port=${CNIL_GITHUB_TEST_PORT} --ci-attr --attach README.txt
+
           # unknown signer
           ${{ matrix.exe }} a -s unknown README.txt --lc-host=${CNIL_GITHUB_TEST_HOST} --lc-port=${CNIL_GITHUB_TEST_PORT} || retval=$?
           test $retval -eq 2

@@ -56,7 +56,7 @@ func runList(cmd *cobra.Command, args []string) error {
 	cmd.SilenceUsage = true
 
 	if store.Config().CurrentContext.LcHost != "" {
-		fmt.Printf("Not supported with CodeNotary Ledger Compliance credentials\n")
+		fmt.Printf("Not supported with CodeNotary Immutable Ledger credentials\n")
 		return nil
 	}
 

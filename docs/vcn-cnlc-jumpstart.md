@@ -1,23 +1,23 @@
-# vcn - CodeNotary Ledger Compliance jumpstart
+# vcn - CodeNotary Immutable Ledger jumpstart
 
 ## Table of contents
 
-- [CodeNotary Ledger Compliance](#codenotary-ledger-compliance)
+- [CodeNotary Immutable Ledger](#codenotary-ledger-compliance)
 - [Quick start](#quick-start)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Documentation](#documentation)
 
-## CodeNotary Ledger Compliance
+## CodeNotary Immutable Ledger
 
-vcn has been extended in order to be compatible with [CodeNotary Ledger Compliance](https://codenotary.com/) .
+vcn has been extended in order to be compatible with [CodeNotary Immutable Ledger](https://codenotary.com/) .
 Notarized assets informations are stored in a tamperproof ledger with cryptographic verification backed by [immudb](https://codenotary.com/technologies/immudb/), the immutable database.
 Thanks to this `vcn` is faster and provides more powerful functionalities like local data inclusion, consistency verification and enhanced CLI filters.
 
 ### Obtain an API Key
-To provide access to Ledger Compliance a valid API Key is required.
+To provide access to Immutable Ledger a valid API Key is required.
 This API Key is bound to a specific Ledger and it's required during vcn login.
-To obtain a valid key you need to get access to a licensed CodeNotary Ledger Compliance installation.
+To obtain a valid key you need to get access to a licensed CodeNotary Immutable Ledger installation.
 
 
 ## Quick start
@@ -48,7 +48,7 @@ To obtain a valid key you need to get access to a licensed CodeNotary Ledger Com
 
 ### Login
 
-To login in Ledger Compliance provides `--lc-port` and `--lc-host` flag, also the user submit API Key when requested.
+To login in Immutable Ledger provides `--lc-port` and `--lc-host` flag, also the user submit API Key when requested.
 Once host, port and API Key are provided, it's possible to omit them in following commands. Otherwise, the user can provide them in other commands like `notarize`, `verify` or `inspect`.
 
 ```shell script
@@ -70,7 +70,7 @@ vcn notarize asset.txt --lc-host cnlc-host.com --lc-port 443
 
 #### TLS
 
-By default, vcn will try to establish a secure connection (TLS) with a Ledger Compliance server.
+By default, vcn will try to establish a secure connection (TLS) with a Immutable Ledger server.
 
 The user can also provide a custom TLS certificate for the server, in case vcn is not able to download it automatically:
 
@@ -85,7 +85,7 @@ configure vcn to skip TLS certificate verification with the `--lc-skip-tls-verif
 vcn login --lc-port 443 --lc-host cnlc-host.com --lc-cert mycert.pem --lc-skip-tls-verify
 ```
 
-Finally in case the Ledger Compliance Server is not exposed through a TLS endpoint, the user can request a cleartext
+Finally in case the Immutable Ledger Server is not exposed through a TLS endpoint, the user can request a cleartext
 connection using the `--lc-no-tls` option:
 
 ```shell script
@@ -245,7 +245,7 @@ vcn authenticate --hash fce289e99eb9bca977dae136fbe2a82b6b7d4c372474c9235adc1741
 
 In case you want to unsupport/untrust an asset of yours that you no longer have, you can do so using the asset hash(es) with the following steps below.
 
-First, you’ll need to get the hash of the asset from your CodeNotary Ledger Compliance dashboard or alternatively you can use the `vcn list` command. Then, in the CLI, use:
+First, you’ll need to get the hash of the asset from your CodeNotary Immutable Ledger dashboard or alternatively you can use the `vcn list` command. Then, in the CLI, use:
 
 ```
 vcn untrust --hash <asset's hash>
@@ -311,7 +311,7 @@ vcn inspect document.pdf --signerID CygBE_zb8XnprkkO6ncIrbbwYoUq5T1zfyEF6DhqcAI=
 
 #### Using Cross-Ledgers API Keys
 
-When using Ledger Compliance server, it is possible to use API keys that are not
+When using Immutable Ledger server, it is possible to use API keys that are not
 specific to one ledger. This kind of keys is supported only by the `authenticate`
 and `inspect` sub-commands. If such an API key is used, the ledger must be explicitly
 specified:

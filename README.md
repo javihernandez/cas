@@ -29,7 +29,7 @@ Everything is done in a global, collaborative way to break the common silo solut
 - [Integrations](#integrations)
 - [Documentation](#documentation)
 - [Testing](#testing)
-- [CodeNotary Ledger Compliance](#codenotary-ledger-compliance)
+- [CodeNotary Immutable Ledger](#codenotary-immutable-ledger)
 
 - [License](#license)
 
@@ -331,20 +331,20 @@ vcn notarize <asset>
 make test
 ```
 
-## CodeNotary Ledger Compliance
+## CodeNotary Immutable Ledger
 
-Vcn was extended in order to be compatible with [CodeNotary Ledger Compliance](https://codenotary.com/) .
+Vcn was extended in order to be compatible with [CodeNotary Immutable Ledger](https://codenotary.com/) .
 Notarized assets informations are stored in a tamperproof ledger with cryptographic verification backed by [immudb](https://codenotary.com/technologies/immudb/), the immutable database.
 Thanks to this `vcn` is faster and provides more powerful functionalities like local data inclusion, consistency verification and enhanced CLI filters.
 
 ### Obtain an API Key
-To provide access to Ledger Compliance a valid API Key is required.
+To provide access to Immutable Ledger a valid API Key is required.
 This API Key is bound to a specific Ledger and it's required during vcn login.
-To obtain a valid key you need to get access to a licensed CodeNotary Ledger Compliance installation.
+To obtain a valid key you need to get access to a licensed CodeNotary Immutable Ledger installation.
 
 ### Login
 
-To login in Ledger Compliance provides `--lc-port` and `--lc-host` flag, also the user submit API Key when requested.
+To login in Immutable Ledger provides `--lc-port` and `--lc-host` flag, also the user submit API Key when requested.
 Once host, port and API Key are provided, it's possible to omit them in following commands. Otherwise, the user can provide them in other commands like `notarize`, `verify` or `inspect`.
 
 ```shell script
@@ -366,7 +366,7 @@ vcn notarize asset.txt --lc-host cnlc-host.com --lc-port 443
 
 #### TLS
 
-By default, vcn will try to establish a secure connection (TLS) with a Ledger Compliance server.
+By default, vcn will try to establish a secure connection (TLS) with a Immutable Ledger server.
 
 The user can also provide a custom TLS certificate for the server, in case vcn is not able to download it automatically:
 
@@ -381,7 +381,7 @@ configure vcn to skip TLS certificate verification with the `--lc-skip-tls-verif
 vcn login --lc-port 443 --lc-host cnlc-host.com --lc-cert mycert.pem --lc-skip-tls-verify
 ```
 
-Finally in case the Ledger Compliance Server is not exposed through a TLS endpoint, the user can request a cleartext
+Finally in case the Immutable Ledger Server is not exposed through a TLS endpoint, the user can request a cleartext
 connection using the `--lc-no-tls` option:
 
 ```shell script

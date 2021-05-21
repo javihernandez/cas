@@ -27,7 +27,7 @@ func lcVerify(cmd *cobra.Command, a *api.Artifact, user *api.LcUser, signerID st
 		}
 		if err == api.ErrNotVerified {
 			color.Set(meta.StyleError())
-			fmt.Println("the ledger is compromised. Please contact the CodeNotary Ledger Compliance administrators")
+			fmt.Println("the ledger is compromised. Please contact the CodeNotary Immutable Ledger administrators")
 			color.Unset()
 			fmt.Println()
 			viper.Set("exit-code", strconv.Itoa(meta.StatusUnknown.Int()))
@@ -60,7 +60,7 @@ func lcVerify(cmd *cobra.Command, a *api.Artifact, user *api.LcUser, signerID st
 	}
 	if !verified {
 		color.Set(meta.StyleError())
-		fmt.Println("the ledger is compromised. Please contact the CodeNotary Ledger Compliance administrators")
+		fmt.Println("the ledger is compromised. Please contact the CodeNotary Immutable Ledger administrators")
 		color.Unset()
 		fmt.Println()
 		viper.Set("exit-code", strconv.Itoa(meta.StatusUnknown.Int()))

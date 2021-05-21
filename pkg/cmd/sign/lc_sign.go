@@ -52,7 +52,7 @@ func LcSign(u *api.LcUser, artifacts []*api.Artifact, state meta.Status, output 
 		if err != nil {
 			if err == api.ErrNotVerified {
 				color.Set(meta.StyleError())
-				fmt.Println("the ledger is compromised. Please contact the CodeNotary Ledger Compliance administrators")
+				fmt.Println("the ledger is compromised. Please contact the CodeNotary Immutable Ledger administrators")
 				color.Unset()
 				fmt.Println()
 				return nil
@@ -79,7 +79,7 @@ func LcSign(u *api.LcUser, artifacts []*api.Artifact, state meta.Status, output 
 		if err != nil {
 			if err == api.ErrNotVerified {
 				color.Set(meta.StyleError())
-				fmt.Println("the ledger is compromised. Please contact the CodeNotary Ledger Compliance administrators")
+				fmt.Println("the ledger is compromised. Please contact the CodeNotary Immutable Ledger administrators")
 				color.Unset()
 				fmt.Println()
 				artifact.Status = meta.StatusUnknown

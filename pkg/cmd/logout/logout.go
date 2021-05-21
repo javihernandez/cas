@@ -48,7 +48,7 @@ func NewCommand() *cobra.Command {
 	return cmd
 }
 
-// Execute logout action for both Ledger Compliance and CodeNotary.io
+// Execute logout action for both Immutable Ledger and CodeNotary.io
 func Execute() error {
 	store.Config().ClearContext()
 	if err := store.SaveConfig(); err != nil {

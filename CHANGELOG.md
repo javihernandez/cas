@@ -4,8 +4,22 @@ All notable changes to this project will be documented in this file. This projec
 ## [Unreleased]
 
 
+<a name="v0.9.6"></a>
+## [v0.9.6] - 2021-05-19
+### Bug Fixes
+- Make test file content unique to avoid parallel notarization
+- **cmd/sign:** fix missing alert sign nil pointer error
+
+### Changes
+- fix badge url
+- upgrade cnil sdk
+- upgrade cnil sdk in order to fix file lock issue
+- remove circleCI
+- **pkg/api:** handle parallel requests with same hash on blockchain
+
+
 <a name="v0.9.5"></a>
-## [v0.9.5] - 2021-04-29
+## [v0.9.5] - 2021-05-07
 ### Bug Fixes
 - unsuccessful status code
 - fix return error codes on cn.io
@@ -761,7 +775,8 @@ this commit introduce the config file with multi-keys support, and a huge refact
 <a name="v.0.1-beta.2"></a>
 ## v.0.1-beta.2 - 2019-02-19
 
-[Unreleased]: https://github.com/vchain-us/vcn/compare/v0.9.5...HEAD
+[Unreleased]: https://github.com/vchain-us/vcn/compare/v0.9.6...HEAD
+[v0.9.6]: https://github.com/vchain-us/vcn/compare/v0.9.5...v0.9.6
 [v0.9.5]: https://github.com/vchain-us/vcn/compare/v0.9.4...v0.9.5
 [v0.9.4]: https://github.com/vchain-us/vcn/compare/v0.9.3...v0.9.4
 [v0.9.3]: https://github.com/vchain-us/vcn/compare/v0.9.2...v0.9.3

@@ -27,7 +27,7 @@ func NewCommand() *cobra.Command {
 		Short: "Start a local API server",
 		Long: `Start a local API server
 
-In CodeNotary Ledger Compliance mode api key is required. Provide it using x-notarization-lc-api-key header on each request.
+In CodeNotary Immutable Ledger mode api key is required. Provide it using x-notarization-lc-api-key header on each request.
 
 Environment variables:
 VCN_USER=

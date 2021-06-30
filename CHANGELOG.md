@@ -4,13 +4,36 @@ All notable changes to this project will be documented in this file. This projec
 ## [Unreleased]
 
 
+<a name="v0.9.7"></a>
+## [v0.9.7] - 2021-06-29
+### Bug Fixes
+- attachments internal map is iterated with a side sorted string slice. Add some cleanup
+- **pkg/cmd/verify:** fix attachments download with multiple version
+- **pkg/cmd/verify:** attachments can be used only on CNIL context. On blockchain error is returned
+- **pkg/cmd/verify:** fix attachments printing when artifact is not notarized
+
+### Changes
+- fix attachments download and add friendly print of attachments when downloading
+- attach-full-download flag is removed and full download is default behaviour
+- **pkg/api:** fix uid friendly label extraction from key
+- **pkg/meta:** fix sign attachment flag description
+- **pkg/meta:** fix friendly label sign command desc
+
+### Features
+- add verbose flag to add extra data to the UI
+- add --force flag to silently overwrite files
+- add attach-full-download flag to download all attachments for a label
+- add notarize and verify friendly labels
+
+
 <a name="v0.9.6"></a>
-## [v0.9.6] - 2021-05-19
+## [v0.9.6] - 2021-06-01
 ### Bug Fixes
 - Make test file content unique to avoid parallel notarization
 - **cmd/sign:** fix missing alert sign nil pointer error
 
 ### Changes
+- rename CNLC to CNIL
 - fix badge url
 - upgrade cnil sdk
 - upgrade cnil sdk in order to fix file lock issue
@@ -528,11 +551,11 @@ support for multiple keystores in config file and related APIs within the `store
 - **sign:** `VCN_KEY` env variable for signing
 
 
-<a name="v0.5.0"></a>
-## [v0.5.0] - 2019-06-25
-
 <a name="0.5.0"></a>
 ## [0.5.0] - 2019-06-25
+
+<a name="v0.5.0"></a>
+## [v0.5.0] - 2019-06-25
 ### Bug Fixes
 - ca-certificates for Dockerfile
 - clean other context when user logs in
@@ -775,7 +798,8 @@ this commit introduce the config file with multi-keys support, and a huge refact
 <a name="v.0.1-beta.2"></a>
 ## v.0.1-beta.2 - 2019-02-19
 
-[Unreleased]: https://github.com/vchain-us/vcn/compare/v0.9.6...HEAD
+[Unreleased]: https://github.com/vchain-us/vcn/compare/v0.9.7...HEAD
+[v0.9.7]: https://github.com/vchain-us/vcn/compare/v0.9.6...v0.9.7
 [v0.9.6]: https://github.com/vchain-us/vcn/compare/v0.9.5...v0.9.6
 [v0.9.5]: https://github.com/vchain-us/vcn/compare/v0.9.4...v0.9.5
 [v0.9.4]: https://github.com/vchain-us/vcn/compare/v0.9.3...v0.9.4
@@ -799,9 +823,9 @@ this commit introduce the config file with multi-keys support, and a huge refact
 [v0.5.4]: https://github.com/vchain-us/vcn/compare/v0.5.3...v0.5.4
 [v0.5.3]: https://github.com/vchain-us/vcn/compare/v0.5.2...v0.5.3
 [v0.5.2]: https://github.com/vchain-us/vcn/compare/v0.5.1...v0.5.2
-[v0.5.1]: https://github.com/vchain-us/vcn/compare/v0.5.0...v0.5.1
-[v0.5.0]: https://github.com/vchain-us/vcn/compare/0.5.0...v0.5.0
-[0.5.0]: https://github.com/vchain-us/vcn/compare/0.4.3...0.5.0
+[v0.5.1]: https://github.com/vchain-us/vcn/compare/0.5.0...v0.5.1
+[0.5.0]: https://github.com/vchain-us/vcn/compare/v0.5.0...0.5.0
+[v0.5.0]: https://github.com/vchain-us/vcn/compare/0.4.3...v0.5.0
 [0.4.3]: https://github.com/vchain-us/vcn/compare/0.4.2...0.4.3
 [0.4.2]: https://github.com/vchain-us/vcn/compare/0.4.1...0.4.2
 [0.4.1]: https://github.com/vchain-us/vcn/compare/0.4.0...0.4.1

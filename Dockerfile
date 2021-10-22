@@ -1,11 +1,9 @@
-# vcn - vChain CodeNotary
-#
-# Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
-# This software is released under GPL3.
+# Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+# This software is released under Apache License 2.0.
 # The full license information can be found under:
-# https://www.gnu.org/licenses/gpl-3.0.en.html
+# https://www.apache.org/licenses/LICENSE-2.0
 
-FROM golang:1.15-buster as build
+FROM golang:1.16.6-buster as build
 WORKDIR /src
 COPY . .
 RUN GOOS=linux GOARCH=amd64 make static
@@ -16,6 +14,6 @@ RUN apk add --no-cache \
 
 FROM scratch
 COPY --from=ca /etc/ssl/certs /etc/ssl/certs
-COPY --from=build /src/vcn /bin/vcn
+COPY --from=build /src/cas /bin/cas
 
-ENTRYPOINT [ "/bin/vcn" ]
+ENTRYPOINT [ "/bin/cas" ]

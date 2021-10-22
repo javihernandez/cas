@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
- * This software is released under GPL3.
+ * Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+ * This software is released under Apache License 2.0.
  * The full license information can be found under:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  */
 
@@ -21,9 +21,6 @@ type Level int64
 
 // Status is the type for all possible asset statuses
 type Status int64
-
-// Visibility is the type for all visibility values
-type Visibility int64
 
 // Allowed Level values
 const (
@@ -46,67 +43,48 @@ const (
 	StatusApikeyRevoked Status = 4
 )
 
-// Allowed Visibility values
+// cas environment variable names
 const (
-	VisibilityPublic  Visibility = 0
-	VisibilityPrivate Visibility = 1
+	CasApiKey        string = "CAS_API_KEY"
+	CasHost          string = "CAS_HOST"
+	CasPort          string = "CAS_PORT"
+	CasCert          string = "CAS_CERT"
+	CasNoTls         string = "CAS_NO_TLS"
+	CasSkipTlsVerify string = "CAS_SKIP_TLS_VERIFY"
 )
 
-// Event tracking related consts
-const (
-	VcnLoginEvent       string = "VCN_LOGIN"
-	VcnSignEvent        string = "VCN_SIGN"
-	VcnVerifyEvent      string = "VCN_VERIFY"
-	VcnAlertVerifyEvent string = "VCN_ALERT_VERIFY"
-)
+const CasExitCode string = "override default exit codes in case of success"
 
-// vcn environment variable names
-const (
-	VcnUserEnv                   string = "VCN_USER"
-	VcnPasswordEnv               string = "VCN_PASSWORD"
-	VcnNotarizationPassword      string = "VCN_NOTARIZATION_PASSWORD"
-	VcnNotarizationPasswordEmpty string = "VCN_NOTARIZATION_PASSWORD_EMPTY"
-	VcnOtp                       string = "VCN_OTP"
-	VcnOtpEmpty                  string = "VCN_OTP_EMPTY"
-	VcnLcApiKey                  string = "VCN_LC_API_KEY"
-	VcnLcHost                    string = "VCN_LC_HOST"
-	VcnLcPort                    string = "VCN_LC_PORT"
-	VcnLcCert                    string = "VCN_LC_CERT"
-	VcnLcNoTls                   string = "VCN_LC_NO_TLS"
-	VcnLcSkipTlsVerify           string = "VCN_LC_SKIP_TLS_VERIFY"
-)
+const CasPrefix string = "cas"
 
-const VcnExitCode string = "override default exit codes in case of success"
+// Community Attestation Service
+const CasPluginTypeHeaderName string = "plugin-type"
+const CasLedgerHeaderName string = "ledger"
+const CasVersionHeaderName string = "version"
+const CasPluginTypeHeaderValue string = "vcn"
+const CasCmdHeaderName = "cas-command"
+const CasNotarizeCmdHeaderValue = "notarize"
+const CasVerifyCmdHeaderValue = "verify"
 
-const VcnPrefix string = "vcn"
-const VcnAttachmentLabelPrefix string = "_ITEM.ATTACH.LABEL"
+const CasHostFlagDesc string = "if set with host, action will be route to a Community Attestation Service"
+const CasPortFlagDesc string = "set port for set up a connection to a Community Attestation Service (default 443). If --no-tls is provided default port will be 80"
+const CasCertPathDesc string = "local or absolute path to a certificate file needed to set up tls connection to a Community Attestation Service"
+const CasSkipTlsVerifyDesc string = "disables tls certificate verification when connecting to a Community Attestation Service"
+const CasNoTlsDesc string = "allow insecure connections when connecting to a Community Attestation Service"
+const CasApiKeyDesc string = "Community Attestation Service api key"
+const CasLedgerDesc string = "Community Attestation Service ledger. Required when a multi-ledger API key is used."
+const CasCIAttribDesc string = "detect CI environment variables context if presents and inject "
+const CasUidDesc string = "authenticate on a specific artifact uid"
+const CasSigningPubKeyFileNameDesc string = "specify a public key file path to verify signature in messages when connected to a Community Attestation Service. If no public key file is specified but server is signig messages is possible an interactive confirmation of the fingerprint. When confirmed the public key is stored in ~/.cas-trusted-signing-pub-key file."
+const CasSigningPubKeyDesc string = "specify a public key to verify signature in messages when connected to a Community Attestation Service. It's required a valid ECDSA key content without header and footer. Ex: --signing-pub-key=\"MFkwE...y5i4w==\""
+const CasEnforceSignatureVerifyDesc string = "if this flag is provided cas will disable signature auto trusting when connecting to a new Community Attestation Service"
 
-// Ledger compliance
-const VcnLCPluginTypeHeaderName string = "lc-plugin-type"
-const VcnLCLedgerHeaderName string = "lc-ledger"
-const VcnLCVersionHeaderName string = "version"
-const VcnLCPluginTypeHeaderValue string = "vcn"
+const BomEntryKeyName string = "BOM"
 
-const VcnLcHostFlagDesc string = "if set with host, action will be route to a CodeNotary Immutable Ledger server"
-const VcnLcPortFlagDesc string = "set port for set up a connection to a CodeNotary Immutable Ledger server (default 443). If --lc-no-tls is provided default port will be 80"
-const VcnLcCertPathDesc string = "local or absolute path to a certificate file needed to set up tls connection to a CodeNotary Immutable Ledger server"
-const VcnLcSkipTlsVerifyDesc string = "disables tls certificate verification when connecting to a CodeNotary Immutable Ledger server"
-const VcnLcNoTlsDesc string = "allow insecure connections when connecting to a CodeNotary Immutable Ledger server"
-const VcnLcApiKeyDesc string = "CodeNotary Immutable Ledger server api key"
-const VcnLcLedgerDesc string = "CodeNotary Immutable Ledger ledger. Required when a multi-ledger API key is used."
-const VcnLcAttachDesc string = "add user defined file attachments. Ex. vcn n myfile --attach mysecondfile. (repeat --attach for multiple entries). It's possible to specify a label for each entry, Ex: --attach=vscanner.result:jobid123. In this way it will be possible to retrieve the specific attachment with `vcn a binary1 --attach=vscanner.result:jobid123` or `vcn a binary1 --attach=jobid123` to get all attachments"
-const VcnLcCIAttribDesc string = "detect CI environment variables context if presents and inject "
-const VcnLcUidDesc string = "authenticate on a specific artifact uid"
-const VcnLcAttachmentAuthDesc string = `authenticate an artifact on a specific attachment label. With this it's be possible to retrieve the specific attachment with:
-vcn a binary1 --attach=vscanner.result:jobid123 --output=attachments
-or to get all attachments for a label:
-vcn a binary1 --attach=jobid123 --output=attachments`
-const VcnLcForceAttachmentDownloadDesc string = "if provided when downloading attachments files are silently overwritten"
-
-// UserAgent returns the vcn's User-Agent string
+// UserAgent returns the CAS User-Agent string
 func UserAgent() string {
 	// Syntax reference: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent#Syntax
-	return fmt.Sprintf("vcn/%s (%s; %s)", Version(), runtime.GOOS, runtime.GOARCH)
+	return fmt.Sprintf("%s/%s (%s; %s)", CasPluginTypeHeaderValue, Version(), runtime.GOOS, runtime.GOARCH)
 }
 
 // String returns the name of the given level as string.
@@ -160,30 +138,9 @@ func StatusNameStyled(status Status) string {
 	return color.New(c, s, b).Sprintf(status.String())
 }
 
-// String returns the name of the given visibility as string
-func (v Visibility) String() string {
-	switch v {
-	case VisibilityPublic:
-		return "PUBLIC"
-	case VisibilityPrivate:
-		return "PRIVATE"
-	default:
-		log.Fatal("unsupported visibility: ", int(64))
-		return ""
-	}
-}
-
-// VisibilityForFlag returns VisibilityPublic if public is true, otherwise VisibilityPrivate
-func VisibilityForFlag(public bool) Visibility {
-	if public {
-		return VisibilityPublic
-	}
-	return VisibilityPrivate
-}
-
 const DateShortForm = "2006/1/2-15:04:05"
 const IndexDateRangePrefix = "_INDEX.ITEM.INSERTION-DATE."
 
-const VcnDefaultExitCode = 0
+const CasDefaultExitCode = 0
 
-const AttachmentSeparator = ".attach."
+const CasSigningPubKeyFileName = ".cas-trusted-signing-pub-key"

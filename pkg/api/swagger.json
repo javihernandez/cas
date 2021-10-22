@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0",
-    "title": "VCN server",
+    "title": "cas server",
     "contact": {}
   },
   "host": "127.0.0.1:8080",

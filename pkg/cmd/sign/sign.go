@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
- * This software is released under GPL3.
+ * Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+ * This software is released under Apache License 2.0.
  * The full license information can be found under:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  */
 
@@ -11,33 +11,26 @@ package sign
 import (
 	"bufio"
 	"fmt"
-	"github.com/vchain-us/vcn/pkg/cicontext"
 	"os"
+	"path/filepath"
 	"strings"
 
-	"github.com/spf13/viper"
-	"github.com/vchain-us/vcn/pkg/extractor/wildcard"
+	"github.com/codenotary/cas/pkg/signature"
 
-	"github.com/vchain-us/vcn/pkg/extractor/dir"
-
-	"github.com/fatih/color"
-
-	"github.com/caarlos0/spin"
+	"github.com/codenotary/cas/pkg/api"
+	"github.com/codenotary/cas/pkg/bom"
+	"github.com/codenotary/cas/pkg/bom/artifact"
+	"github.com/codenotary/cas/pkg/bom/docker"
+	"github.com/codenotary/cas/pkg/cicontext"
+	"github.com/codenotary/cas/pkg/cmd/verify"
+	"github.com/codenotary/cas/pkg/extractor"
+	"github.com/codenotary/cas/pkg/meta"
+	"github.com/codenotary/cas/pkg/uri"
+	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
-	"github.com/vchain-us/vcn/internal/assert"
-	"github.com/vchain-us/vcn/pkg/api"
-	"github.com/vchain-us/vcn/pkg/cmd/internal/cli"
-	"github.com/vchain-us/vcn/pkg/cmd/internal/types"
-	"github.com/vchain-us/vcn/pkg/extractor"
-	"github.com/vchain-us/vcn/pkg/meta"
-	"github.com/vchain-us/vcn/pkg/store"
+	"github.com/spf13/viper"
+	"github.com/vchain-us/ledger-compliance-go/schema"
 )
-
-const longDescFooter = `
-
-VCN_NOTARIZATION_PASSWORD env var can be used to pass the
-required notarization password in a non-interactive environment.
-`
 
 const helpMsgFooter = `
 ARG must be one of:
@@ -45,19 +38,22 @@ ARG must be one of:
   file
   directory
   file://<file>
-  dir://<directory>
   git://<repository>
   docker://<image>
   podman://<image>
   wildcard://"*"
 `
 
-// NewCommand returns the cobra command for `vcn sign`
+// NewCommand returns the cobra command for `cas sign`
 func NewCommand() *cobra.Command {
 	cmd := makeCommand()
-	cmd.Flags().Bool("create-alert", false, "if set, an alert will be created (config will be stored into the .vcn dir)")
-	cmd.Flags().String("alert-name", "", "set the alert name (ignored if --create-alert is not set)")
-	cmd.Flags().String("alert-email", "", "set the alert email recipient (ignored if --create-alert is not set)")
+	cmd.Flags().Bool("bom", false, "auto-notarize asset dependencies and link dependencies to the asset")
+	cmd.Flags().String("bom-signerID", "", "signerID to use for authenticating dependencies")
+	cmd.Flags().Uint("bom-batch-size", 10, "By default BoM dependencies are authenticated/notarized in batches of up to 10 dependencies each. Use this flag to set a different batch size. A value of 0 will disable batching (all dependencies will be authenticated/notarized at once).")
+	// BoM output options
+	cmd.Flags().String("bom-spdx", "", "name of the file to output BoM in SPDX format")
+	cmd.Flags().String("bom-cyclonedx-json", "", "name of the file to output BoM in CycloneDX JSON format")
+	cmd.Flags().String("bom-cyclonedx-xml", "", "name of the file to output BoM in CycloneDX XML format")
 	return cmd
 }
 
@@ -65,17 +61,17 @@ func makeCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "notarize",
 		Aliases: []string{"n", "sign", "s"},
-		Short:   "Notarize an asset onto the blockchain",
+		Short:   "Notarize an asset onto Community Attestation Service",
 		Long: `
-Notarize an asset onto the blockchain.
+Notarize an asset onto the CAS.
 
 Notarization calculates the SHA-256 hash of a digital asset
 (file, directory, container's image).
 The hash (not the asset) and the desired status of TRUSTED are then
 cryptographically signed by the signer's secret (private key).
-Next, these signed objects are sent to the blockchain where the signer’s
+Next, these signed objects are sent to the CAS where the signer’s
 trust level and a timestamp are added.
-When complete, a new blockchain entry is created that binds the asset’s
+When complete, a new entry is created that binds the asset’s
 signed hash, signed status, level, and timestamp together.
 
 Note that your assets will not be uploaded. They will be processed locally.
@@ -84,22 +80,18 @@ Assets are referenced by passed ARG with notarization only accepting
 1 ARG at a time.
 
 Pipe mode:
-If '-' is provided (echo my-file | vcn n -) stdin is read and parsed. Only pipe ARGs are processed.
+If '-' is provided (echo my-file | cas n -) stdin is read and parsed. Only pipe ARGs are processed.
 
 Environment variables:
-VCN_USER=
-VCN_PASSWORD=
-VCN_NOTARIZATION_PASSWORD=
-VCN_NOTARIZATION_PASSWORD_EMPTY=
-VCN_OTP=
-VCN_OTP_EMPTY=
-VCN_LC_HOST=
-VCN_LC_PORT=
-VCN_LC_CERT=
-VCN_LC_SKIP_TLS_VERIFY=false
-VCN_LC_NO_TLS=false
-VCN_LC_API_KEY=
-
+CAS_HOST=
+CAS_PORT=
+CAS_CERT=
+CAS_SKIP_TLS_VERIFY=false
+CAS_NO_TLS=false
+CAS_API_KEY=
+CAS_SIGNING_PUB_KEY_FILE=
+CAS_SIGNING_PUB_KEY=
+CAS_ENFORCE_SIGNATURE_VERIFY=
 ` + helpMsgFooter,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return viper.BindPFlags(cmd.Flags())
@@ -120,29 +112,27 @@ VCN_LC_API_KEY=
 			return runSignWithState(cmd, args, meta.StatusTrusted)
 		},
 		Args: noArgsWhenHashOrPipe,
-		Example: `vcn notarize my-file"
-vcn notarize -r "*.md"
-echo my-file | vcn n -`,
+		Example: `cas notarize my-file
+echo my-file | cas n -`,
 	}
 
 	cmd.Flags().VarP(make(mapOpts), "attr", "a", "add user defined attributes (repeat --attr for multiple entries)")
-	cmd.Flags().Bool("ci-attr", false, meta.VcnLcCIAttribDesc)
+	cmd.Flags().Bool("ci-attr", false, meta.CasCIAttribDesc)
 	cmd.Flags().StringP("name", "n", "", "set the asset name")
-	cmd.Flags().BoolP("public", "p", false, "when notarized as public, the asset name and metadata will be visible to everyone")
 	cmd.Flags().String("hash", "", "specify the hash instead of using an asset, if set no ARG(s) can be used")
-	cmd.Flags().Bool("no-ignore-file", false, "if set, .vcnignore will be not written inside the targeted dir (affects dir:// only)")
-	cmd.Flags().Bool("read-only", false, "if set, no files will be written into the targeted dir (affects dir:// only)")
-	cmd.Flags().BoolP("recursive", "r", false, "if set, wildcard usage will walk inside subdirectories of provided path")
-	cmd.Flags().String("lc-host", "", meta.VcnLcHostFlagDesc)
-	cmd.Flags().String("lc-port", "443", meta.VcnLcPortFlagDesc)
-	cmd.Flags().String("lc-cert", "", meta.VcnLcCertPathDesc)
-	cmd.Flags().Bool("lc-skip-tls-verify", false, meta.VcnLcSkipTlsVerifyDesc)
-	cmd.Flags().Bool("lc-no-tls", false, meta.VcnLcNoTlsDesc)
-	cmd.Flags().String("lc-api-key", "", meta.VcnLcApiKeyDesc)
-	cmd.Flags().StringArray("attach", nil, meta.VcnLcAttachDesc)
+	cmd.Flags().String("host", "", meta.CasHostFlagDesc)
+	cmd.Flags().String("port", "", meta.CasPortFlagDesc) // set to default port in GetOrCreateLcUser(), if not available from context
+	cmd.Flags().String("cert", "", meta.CasCertPathDesc)
+	cmd.Flags().Bool("skip-tls-verify", false, meta.CasSkipTlsVerifyDesc)
+	cmd.Flags().Bool("no-tls", false, meta.CasNoTlsDesc)
+	cmd.Flags().String("api-key", "", meta.CasApiKeyDesc)
+
 	cmd.SetUsageTemplate(
 		strings.Replace(cmd.UsageTemplate(), "{{.UseLine}}", "{{.UseLine}} ARG", 1),
 	)
+	cmd.Flags().String("signing-pub-key-file", "", meta.CasSigningPubKeyFileNameDesc)
+	cmd.Flags().String("signing-pub-key", "", meta.CasSigningPubKeyDesc)
+	cmd.Flags().Bool("enforce-signature-verify", false, meta.CasEnforceSignatureVerifyDesc)
 
 	return cmd
 }
@@ -150,50 +140,6 @@ echo my-file | vcn n -`,
 func runSignWithState(cmd *cobra.Command, args []string, state meta.Status) error {
 	// default extractors options
 	extractorOptions := []extractor.Option{}
-
-	noIgnoreFile, err := cmd.Flags().GetBool("no-ignore-file")
-	if err != nil {
-		return err
-	}
-	readOnly, err := cmd.Flags().GetBool("read-only")
-	if err != nil {
-		return err
-	}
-	if readOnly {
-		noIgnoreFile = true
-	}
-	if !noIgnoreFile {
-		extractorOptions = append(extractorOptions, dir.WithIgnoreFileInit())
-		extractorOptions = append(extractorOptions, dir.WithSkipIgnoreFileErr())
-	}
-
-	recursive, err := cmd.Flags().GetBool("recursive")
-	if err != nil {
-		return err
-	}
-	if recursive {
-		extractorOptions = append(extractorOptions, wildcard.WithRecursive())
-	}
-	var alert *alertOptions
-	if hasCreateAlert := cmd.Flags().Lookup("create-alert"); hasCreateAlert != nil {
-		createAlert, err := cmd.Flags().GetBool("create-alert")
-		if err != nil {
-			return err
-		}
-		if createAlert {
-			alert = &alertOptions{
-				arg: args[0],
-			}
-			alert.name, _ = cmd.Flags().GetString("alert-name")
-			if err != nil {
-				return err
-			}
-			alert.email, _ = cmd.Flags().GetString("alert-email")
-			if err != nil {
-				return err
-			}
-		}
-	}
 
 	var hash string
 	if hashFlag := cmd.Flags().Lookup("hash"); hashFlag != nil {
@@ -204,17 +150,7 @@ func runSignWithState(cmd *cobra.Command, args []string, state meta.Status) erro
 		}
 	}
 
-	public, err := cmd.Flags().GetBool("public")
-	if err != nil {
-		return err
-	}
-
 	output, err := cmd.Flags().GetString("output")
-	if err != nil {
-		return err
-	}
-
-	silentMode, err := cmd.Flags().GetBool("silent")
 	if err != nil {
 		return err
 	}
@@ -235,226 +171,155 @@ func runSignWithState(cmd *cobra.Command, args []string, state meta.Status) erro
 
 	cmd.SilenceUsage = true
 
-	lcHost := viper.GetString("lc-host")
-	lcPort := viper.GetString("lc-port")
-	lcCert := viper.GetString("lc-cert")
-	skipTlsVerify := viper.GetBool("lc-skip-tls-verify")
-	noTls := viper.GetBool("lc-no-tls")
-	lcApiKey := viper.GetString("lc-api-key")
+	lcHost := viper.GetString("host")
+	lcPort := viper.GetString("port")
+	lcCert := viper.GetString("cert")
+	lcApiKey := viper.GetString("api-key")
 
 	lcVerbose := viper.GetBool("verbose")
 
-	// todo add attachment validator. Deny ":" misuses in input string
-	attachments, err := cmd.Flags().GetStringArray("attach")
+	signingPubKey, skipLocalPubKeyComp, err := signature.PrepareSignatureParams(
+		viper.GetString("signing-pub-key"),
+		viper.GetString("signing-pub-key-file"))
 	if err != nil {
 		return err
 	}
-	//check if an lcUser is present inside the context
-	var lcUser *api.LcUser
+	enforceSignatureVerify := viper.GetBool("enforce-signature-verify")
 
-	uif, err := api.GetUserFromContext(store.Config().CurrentContext, lcApiKey, "")
+	lcUser, err := api.GetOrCreateLcUser(lcApiKey, "", lcHost, lcPort, lcCert, viper.IsSet("skip-tls-verify"), viper.GetBool("skip-tls-verify"), viper.IsSet("no-tls"), viper.GetBool("no-tls"), signingPubKey, false)
 	if err != nil {
 		return err
 	}
-	if lctmp, ok := uif.(*api.LcUser); ok {
-		lcUser = lctmp
-	}
 
-	// use credentials if at least ledger compliance host is provided
-	if lcHost != "" && lcApiKey != "" {
-		lcUser, err = api.NewLcUser(lcApiKey, "", lcHost, lcPort, lcCert, skipTlsVerify, noTls)
-		if err != nil {
-			return err
-		} // Store the new config
-		if err := store.SaveConfig(); err != nil {
-			return err
-		}
-	}
+	// any set `--bom-xxx` option implies bom mode
+	bomFlag := viper.GetBool("bom") ||
+		viper.IsSet("bom-signerID") ||
+		viper.IsSet("bom-spdx") ||
+		viper.IsSet("bom-cyclonedx-json") ||
+		viper.IsSet("bom-cyclonedx-xml") ||
+		viper.IsSet("bom-batch-size")
 
-	var artifacts []*api.Artifact
+	artifacts := make([]*api.Artifact, 0, 1)
 
-	if lcUser != nil {
-		err = lcUser.Client.Connect()
-		if err != nil {
-			return err
-		}
-		if hash != "" {
-			hash = strings.ToLower(hash)
-			// Load existing artifact, if any, otherwise use an empty artifact
-			if ar, _, err := lcUser.LoadArtifact(hash, "", "", 0); err == nil && ar != nil {
-				artifacts = []*api.Artifact{{
-					Kind:        ar.Kind,
-					Name:        ar.Name,
-					Hash:        ar.Hash,
-					Size:        ar.Size,
-					ContentType: ar.ContentType,
-					Metadata:    ar.Metadata,
-				}}
-			} else {
-				if name == "" {
-					return fmt.Errorf("please set an asset name, by using --name")
-				}
-				artifacts = []*api.Artifact{{Hash: hash}}
-			}
-		} else {
-			artifacts, err = extractor.Extract(args, extractorOptions...)
+	for attr := range metadata {
+		if attr == "allowdownload" {
+			err := lcUser.RequireFeatOrErr(schema.FeatAllowDownload)
 			if err != nil {
 				return err
 			}
+			break
 		}
-		return LcSign(lcUser, artifacts, state, output, name, metadata, attachments, lcVerbose)
 	}
 
-	// User
-	if err := assert.UserLogin(); err != nil {
-		return err
-	}
-	u, ok := uif.(*api.User)
-	if !ok {
-		return fmt.Errorf("cannot load the current user")
+	if !skipLocalPubKeyComp {
+		err = lcUser.CheckConnectionPublicKey(enforceSignatureVerify)
+		if err != nil {
+			return err
+		}
 	}
 
-	// Make the artifact to be signed
+	var bomLinks []*schema.VCNDependency
 
+	if bomFlag {
+		err := lcUser.RequireFeatOrErr(schema.FeatBoM)
+		if err != nil {
+			return err
+		}
+	}
+	outputOpts := artifact.Progress
+	if viper.GetBool("silent") || output != "" {
+		outputOpts = artifact.Silent
+	}
+
+	var bomArtifact artifact.Artifact
+	if bomFlag {
+		// if bom-file specified, use BoM data from file, otherwise resolve dependencies
+		if len(args) != 1 {
+			return fmt.Errorf("--bom option can be used only with single asset")
+		}
+		path := args[0]
+		u, err := uri.Parse(path)
+		if err != nil {
+			return err
+		}
+		if _, ok := bom.BomSchemes[u.Scheme]; !ok {
+			return fmt.Errorf("unsupported URI %s for --bom option", path)
+		}
+		if u.Scheme != "" {
+			path = strings.TrimPrefix(u.Opaque, "//")
+		}
+		if u.Scheme == "docker" {
+			bomArtifact, err = docker.New(path)
+			if err != nil {
+				return err
+			}
+		} else {
+			path, err = filepath.Abs(path)
+			if err != nil {
+				return err
+			}
+			bomArtifact = bom.New(path)
+		}
+		if bomArtifact == nil {
+			return fmt.Errorf("unsupported asset format/language")
+		}
+
+		if outputOpts != artifact.Silent {
+			fmt.Printf("Resolving dependencies...\n")
+		}
+		deps, err := bomArtifact.ResolveDependencies(outputOpts)
+		if err != nil {
+			return fmt.Errorf("cannot get dependencies: %w", err)
+		}
+
+		bomBatchSize := int(viper.GetUint("bom-batch-size"))
+
+		bomLinks, err = notarizeDeps(lcUser, deps, outputOpts, bomArtifact.Type(), bomBatchSize)
+		if err != nil {
+			return err
+		}
+
+		err = bom.Output(bomArtifact) // process all possible BoM output options
+		if err != nil {
+			// show warning, but not error, because authentication finished
+			fmt.Println(err)
+		}
+		if outputOpts != artifact.Silent {
+			artifact.Display(bomArtifact, artifact.ColNameVersion|artifact.ColHash|artifact.ColTrustLevel)
+		}
+	}
+
+	// notarize the asset if not instructed otherwise
 	if hash != "" {
-		if alert != nil {
-			return fmt.Errorf("cannot use --create-alert with --hash")
-		}
 		hash = strings.ToLower(hash)
 		// Load existing artifact, if any, otherwise use an empty artifact
-		if ar, err := u.LoadArtifact(hash); err == nil && ar != nil {
-			artifacts = []*api.Artifact{ar.Artifact()}
+		if ar, _, err := lcUser.LoadArtifact(hash, "", "", 0, nil); err == nil && ar != nil {
+			artifacts = append(artifacts, &api.Artifact{
+				Kind:        ar.Kind,
+				Name:        ar.Name,
+				Hash:        ar.Hash,
+				Size:        ar.Size,
+				ContentType: ar.ContentType,
+				Metadata:    ar.Metadata,
+			})
 		} else {
 			if name == "" {
 				return fmt.Errorf("please set an asset name, by using --name")
 			}
-			artifacts = []*api.Artifact{{Hash: hash}}
+			artifacts = append(artifacts, &api.Artifact{Hash: hash})
 		}
 	} else {
-		// Extract artifact from arg
 		artifacts, err = extractor.Extract(args, extractorOptions...)
 		if err != nil {
 			return err
 		}
 	}
-
-	if artifacts == nil {
-		return fmt.Errorf("unable to process the input asset provided")
+	if bomArtifact != nil {
+		artifacts[0].Deps = verify.DepsToPackageDetails(bomArtifact.Dependencies())
 	}
-
-	if len(artifacts) == 1 {
-		// Override the asset's name, if provided by --name
-		if name != "" {
-			artifacts[0].Name = name
-		}
-	}
-
-	for _, a := range artifacts {
-		// Copy user provided custom attributes
-		a.Metadata.SetValues(metadata)
-
-		err := sign(*u, *a, state, meta.VisibilityForFlag(public), output, silentMode, readOnly, alert)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func sign(u api.User, a api.Artifact, state meta.Status, visibility meta.Visibility, output string, silent bool, readOnly bool, alert *alertOptions) error {
-
-	if output == "" {
-		color.Set(meta.StyleAffordance())
-		fmt.Print("Your assets will not be uploaded. They will be processed locally.")
-		color.Unset()
-		fmt.Println()
-		fmt.Println()
-		fmt.Println("Signer:\t" + u.Email())
-	}
-
-	hook := newHook(&a)
-
-	s := spin.New("%s Notarization in progress...")
-	s.Set(spin.Spin1)
-
-	var verification *api.BlockchainVerification
-	var err error
-
-	for i := 1; true; i++ {
-		var passphrase string
-		var interactive bool
-		passphrase, interactive, err = cli.ProvidePassphrase()
-		if err != nil {
-			return err
-		}
-
-		if output == "" && !silent {
-			s.Start()
-		}
-
-		var keyin string
-		var offline bool
-		keyin, _, offline, err = u.Secret()
-		if err != nil {
-			return err
-		}
-		if offline {
-			return fmt.Errorf("offline secret is not supported by the current vcn version")
-		}
-
-		verification, err = u.Sign(
-			a,
-			api.SignWithStatus(state),
-			api.SignWithVisibility(visibility),
-			api.SignWithKey(keyin, passphrase),
-		)
-
-		if err != nil && i >= 3 {
-			s.Stop()
-			return fmt.Errorf("too many failed attempts: %s", err)
-		}
-
-		if interactive && err == api.WrongPassphraseErr {
-			s.Stop()
-			fmt.Printf("\nError: %s, please try again\n\n", err.Error())
-			continue
-		}
-		break
-	}
-
-	s.Stop()
-
+	err = LcSign(lcUser, artifacts, state, output, name, metadata, lcVerbose, bomLinks)
 	if err != nil {
 		return err
-	}
-
-	// once transaction is confirmed we don't want to show errors, just print warnings instead.
-
-	// todo(ameingast/leogr): remove redundant event - need backend improvement
-	api.TrackPublisher(&u, meta.VcnSignEvent)
-	api.TrackSign(&u, a.Hash, a.Name, state)
-
-	err = hook.finalize(verification, readOnly)
-	if err != nil {
-		return cli.PrintWarning(output, err.Error())
-	}
-
-	if output == "" {
-		fmt.Println()
-	}
-
-	artifact, err := api.LoadArtifact(&u, a.Hash, verification.MetaHash())
-	if err != nil {
-		return cli.PrintWarning(output, err.Error())
-	}
-
-	cli.Print(output, types.NewResult(&a, artifact, verification))
-
-	if alert != nil {
-		if err := handleAlert(alert, u, a, *verification, output); err != nil {
-			return cli.PrintWarning(output, err.Error())
-		}
 	}
 
 	return nil
@@ -463,4 +328,101 @@ func sign(u api.User, a api.Artifact, state meta.Status, visibility meta.Visibil
 func pipeMode() bool {
 	fileInfo, _ := os.Stdin.Stat()
 	return fileInfo.Mode()&os.ModeCharDevice == 0
+}
+
+func notarizeDeps(lcUser *api.LcUser, deps []artifact.Dependency, outputOpts artifact.OutputOptions, artType string, batchSize int) ([]*schema.VCNDependency, error) {
+	if outputOpts != artifact.Silent {
+		fmt.Printf("Authenticating dependencies...\n")
+	}
+
+	signerID := viper.GetString("bom-signerID")
+	if signerID == "" {
+		signerID = api.GetSignerIDByApiKey(lcUser.Client.ApiKey)
+	}
+
+	var bar *progressbar.ProgressBar
+	if len(deps) > 1 && outputOpts == artifact.Progress {
+		bar = progressbar.Default(int64(len(deps)))
+	}
+
+	progressCallback := func(processedDeps []artifact.Dependency) {
+		if bar != nil {
+			bar.Add(len(processedDeps))
+		}
+	}
+
+	errs, err := artifact.AuthenticateDependencies(lcUser, signerID, deps, batchSize, progressCallback)
+	if err != nil {
+		return nil, fmt.Errorf("error authenticating dependencies: %w", err)
+	}
+
+	var msgs []string
+	var depsToNotarize []*artifact.Dependency
+	var kinds []string
+
+	for i := range deps { // Authenticate mutates the dependency, so use the index
+		if errs[i] != nil {
+			return nil, fmt.Errorf("cannot authenticate %s@%s dependency: %w",
+				deps[i].SignerID, deps[i].Version, errs[i])
+		}
+		if deps[i].TrustLevel < artifact.Unknown {
+			msgs = append(msgs, fmt.Sprintf("Dependency %s@%s trust level is %s",
+				deps[i].Name, deps[i].Version, artifact.TrustLevelName(deps[i].TrustLevel)))
+		}
+		if deps[i].TrustLevel < artifact.Trusted {
+			depsToNotarize = append(depsToNotarize, &deps[i])
+			kinds = append(kinds, artType)
+		}
+	}
+
+	if len(msgs) > 0 {
+		for _, msg := range msgs {
+			fmt.Println(msg)
+		}
+		return nil, fmt.Errorf("some dependencies have insufficient trust level and cannot be automatically notarized")
+	}
+
+	// notarize only the dependencies first to make sure all needed keys are present in DB before
+	// adding key references to the index
+	if len(depsToNotarize) > 0 {
+		var bar *progressbar.ProgressBar
+		if outputOpts != artifact.Silent {
+			ds := "dependencies"
+			if len(depsToNotarize) == 1 {
+				ds = "dependency"
+			}
+			fmt.Printf("Notarizing %d %s ...\n", len(depsToNotarize), ds)
+			if outputOpts == artifact.Progress {
+				bar = progressbar.Default(int64(len(depsToNotarize)))
+			}
+		}
+
+		progressCallbackN := func(processedDeps []*artifact.Dependency) {
+			if bar != nil {
+				bar.Add(len(processedDeps))
+			}
+		}
+
+		err = artifact.NotarizeDependencies(lcUser, kinds, depsToNotarize, batchSize, progressCallbackN)
+		if err != nil {
+			return nil, fmt.Errorf("error notarizing dependencies: %w", err)
+		}
+	} else {
+		fmt.Printf("No dependencies require notarization\n")
+	}
+
+	bom := make([]*schema.VCNDependency, 0, len(deps))
+	for i := range deps {
+		// add dep key to BoM list for attaching
+		depType := schema.VCNDependency_Direct
+		if deps[i].Type == artifact.DepTransient {
+			depType = schema.VCNDependency_Indirect
+		}
+		bom = append(bom, &schema.VCNDependency{
+			Hash: deps[i].Hash,
+			Type: depType,
+		})
+	}
+
+	return bom, nil
 }

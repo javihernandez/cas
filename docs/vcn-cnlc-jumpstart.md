@@ -1,95 +1,94 @@
-# vcn - CodeNotary Immutable Ledger jumpstart
+# cas - Community Attestation Service jumpstart
 
 ## Table of contents
 
-- [CodeNotary Immutable Ledger](#codenotary-ledger-compliance)
+- [Community Attestation Service](#community-attestation-service)
 - [Quick start](#quick-start)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Documentation](#documentation)
 
-## CodeNotary Immutable Ledger
 
-vcn has been extended in order to be compatible with [CodeNotary Immutable Ledger](https://codenotary.com/) .
+
+## Community Attestation Service
+
+cas has been extended in order to be compatible with [Community Attestation Service](https://cas.codenotary.com/).
 Notarized assets informations are stored in a tamperproof ledger with cryptographic verification backed by [immudb](https://codenotary.com/technologies/immudb/), the immutable database.
-Thanks to this `vcn` is faster and provides more powerful functionalities like local data inclusion, consistency verification and enhanced CLI filters.
+Thanks to this `cas` is faster and provides more powerful functionalities like local data inclusion, consistency verification and enhanced CLI filters.
 
 ### Obtain an API Key
-To provide access to Immutable Ledger a valid API Key is required.
-This API Key is bound to a specific Ledger and it's required during vcn login.
-To obtain a valid key you need to get access to a licensed CodeNotary Immutable Ledger installation.
-
+To provide access to Immutable Ledger a valid API Key is required. The key can be obtained from [Community Attestation Service](https://cas.codenotary.com/).
 
 ## Quick start
 
-1. **Download CodeNotary vcn.** There are releases for different platforms:
+1. **Download CodeNotary cas.** There are releases for different platforms:
 
-- [Download the latest release](https://github.com/vchain-us/vcn/releases/latest) and then read the [Usage](#usage) section below.
-- We recommend storing `vcn` in your `PATH` - Linux example:
+- [Download the latest release](https://github.com/codenotary/cas/releases/latest) and then read the [Usage](#usage) section below.
+- We recommend storing `cas` in your `PATH` - Linux example:
    ```bash
-   cp vcn-v<version>-linux-amd64 /usr/local/bin/vcn
+   cp cas-v<version>-linux-amd64 /usr/local/bin/cas
    ```
 
 2. **Authenticate digital objects** You can use the command as a starting point.
 
    ```bash
-   vcn login --lc-host cnlc-host.com --lc-port 443
-   vcn authenticate <file|dir://directory|docker://dockerimage|git://gitdirectory>
+   cas login --host cnlc-host.com --port 443
+   cas authenticate <file|dir://directory|docker://dockerimage|git://gitdirectory|javacom://javacomponent|gocom://gocomponent|pythoncom://pythoncomponent|dotnetcom://dotnetcomponent>
    ```
 
 
 3. **Notarize existing digital objects** Once you have an account you can start notarizing digital assets to give them an identity.
 
    ```bash
-   # vcn login can be skipped, if already performed
-   vcn login --lc-host cnlc-host.com --lc-port 443
-   vcn notarize <file|dir://directory|docker://dockerimage|git://gitdirectory>
+   # cas login can be skipped, if already performed
+   cas login --host cnlc-host.com --port 443
+   cas notarize <file|dir://directory|docker://dockerimage|git://gitdirectory>
    ```
 
 ### Login
 
-To login in Immutable Ledger provides `--lc-port` and `--lc-host` flag, also the user submit API Key when requested.
+To login in Immutable Ledger provides `--port` and `--host` flags, also the user submit API Key when requested.
 Once host, port and API Key are provided, it's possible to omit them in following commands. Otherwise, the user can provide them in other commands like `notarize`, `verify` or `inspect`.
 
 ```shell script
-vcn login --lc-port 443 --lc-host cnlc-host.com
+cas login --port 443 --host cnlc-host.com
 ```
 
 > One time password (otp) is not mandatory
 
-Alternatively, for using vcn in non-interactive mode, the user can supply the API Key via the `VCN_LC_API_KEY` environment variable, e.g.:
+Alternatively, for using cas in non-interactive mode, the user can supply the API Key via the `CAS_API_KEY` environment variable, e.g.:
 
 ```shell script
-export VCN_LC_API_KEY=apikeyhere
+export CAS_API_KEY=apikeyhere
 
-# No vcn login command needed
+# No cas login command needed
 
-# Other vcn commands...
-vcn notarize asset.txt --lc-host cnlc-host.com --lc-port 443
+# Other cas commands...
+cas notarize asset.txt --host cnlc-host.com --port 443
 ```
 
 #### TLS
 
-By default, vcn will try to establish a secure connection (TLS) with a Immutable Ledger server.
+By default, cas will try to establish a secure connection (TLS) with a Immutable Ledger server.
 
-The user can also provide a custom TLS certificate for the server, in case vcn is not able to download it automatically:
+The user can also provide a custom TLS certificate for the server, in case cas is not able to download it automatically:
 
 ```shell script
-vcn login --lc-port 443 --lc-host cnlc-host.com --lc-cert mycert.pem
+cas login --port 443 --host cnlc-host.com --cert mycert.pem
 ```
 
 For testing purposes or in case the provided certificate should be always trusted by the client, the user can
-configure vcn to skip TLS certificate verification with the `--lc-skip-tls-verify` option:
+configure cas to skip TLS certificate verification with the `--skip-tls-verify` option:
 
 ```shell script
-vcn login --lc-port 443 --lc-host cnlc-host.com --lc-cert mycert.pem --lc-skip-tls-verify
+cas login --port 443 --host cnlc-host.com --cert mycert.pem --skip-tls-verify
 ```
 
 Finally in case the Immutable Ledger Server is not exposed through a TLS endpoint, the user can request a cleartext
-connection using the `--lc-no-tls` option:
+connection using the `--no-tls` option:
 
 ```shell script
-vcn login --lc-port 80 --lc-host cnlc-host.com --lc-no-tls
+cas login --port 80 --host cnlc-host.com --no-tls
 ```
 
 ## Installation
@@ -97,33 +96,33 @@ vcn login --lc-port 80 --lc-host cnlc-host.com --lc-no-tls
 ### Download binary
 
 It's easiest to download the latest version for your platform from the [release page](
-https://github.com/vchain-us/vcn/releases).
+https://github.com/codenotary/cas/releases).
 
-Once downloaded, you can rename the binary to `vcn`, then run it from anywhere.
-> For Linux and macOS you need to mark the file as executable: `chmod +x vcn`
+Once downloaded, you can rename the binary to `cas`, then run it from anywhere.
+> For Linux and macOS you need to mark the file as executable: `chmod +x cas`
 
 ### Homebrew / Linuxbrew
 
-If you are on macOS and using [Homebrew](https://brew.sh/) (or on Linux and using [Linuxbrew](https://linuxbrew.sh/)), you can install `vcn` with the following:
+If you are on macOS and using [Homebrew](https://brew.sh/) (or on Linux and using [Linuxbrew](https://linuxbrew.sh/)), you can install `cas` with the following:
 
 ```
 brew tap vchain-us/brew
-brew install vcn
+brew install cas
 ```
 
 ### Build from Source
 
-After having installed [golang](https://golang.org/doc/install) 1.12 or newer clone this
+After having installed [golang](https://golang.org/doc/install) 1.15 or newer clone this
 repository into your working directory.
 
-Now, you can build `vcn` in the working directory by using `make vcn` and then run `./vcn`.
+Now, you can build `cas` in the working directory by using `make cas` and then run `./cas`.
 
-Alternatively, you can install `vcn` in your system simply by running `make install`. This will put the `vcn` executable into `GOBIN` which is
+Alternatively, you can install `cas` in your system simply by running `make install`. This will put the `cas` executable into `GOBIN` which is
 accessible throughout the system.
 
 ## Usage
 
-Basically, `vcn` can notarize or authenticate any of the following kind of assets:
+Basically, `cas` can notarize or authenticate any of the following kind of assets:
 
 - a **file**
 - an entire **directory** (by prefixing the directory path with `dir://`)
@@ -132,7 +131,7 @@ Basically, `vcn` can notarize or authenticate any of the following kind of asset
 
 It's possible to provide a hash value directly by using the `--hash` flag.
 
-For detailed **command line usage** see [docs/cmd/vcn.md](https://github.com/vchain-us/vcn/blob/master/docs/cmd/vcn.md) or just run `vcn help`.
+For detailed **command line usage** see [docs/cmd/cas.md](https://github.com/codenotary/cas/blob/master/docs/cmd/cas.md) or just run `cas help`.
 
 ### Wildcard support and recursive notarization
 
@@ -140,65 +139,65 @@ It's also possible to notarize assets using a wildcard pattern.
 
 With `--recursive` flag the utility can recursively notarize inner directories.
 ```shell script
-./vcn n "*.md" --recursive
+./cas n "*.md" --recursive
 ```
 ### Notarization
 
-Start with the `login` command. `vcn` will walk you through login and importing up your secret upon initial use.
+Start with the `login` command. `cas` will walk you through login and importing up your secret upon initial use.
 
 ```
-vcn login --lc-host cnlc-host.com --lc-port 443
+cas login --host cnlc-host.com --port 443
 ```
 
 Once your secret is set you can notarize assets like in the following examples:
 
 ```
-vcn notarize <file>
-vcn notarize dir://<directory>
-vcn notarize docker://<imageId>
-vcn notarize podman://<imageId>
-vcn notarize git://<path_to_git_repo>
-vcn notarize --hash <hash>
+cas notarize <file>
+cas notarize dir://<directory>
+cas notarize docker://<imageId>
+cas notarize podman://<imageId>
+cas notarize git://<path_to_git_repo>
+cas notarize --hash <hash>
 ```
 
 Change the asset's status:
 
 ```
-vcn unsupport <asset>
-vcn untrust <asset>
+cas unsupport <asset>
+cas untrust <asset>
 ```
 
 Finally, to fetch all assets you've notarized:
 
 ```
-vcn list
+cas list
 ```
 
 ### Authentication
 
 ```
-vcn authenticate <file>
-vcn authenticate dir://<directory>
-vcn authenticate docker://<imageId>
-vcn authenticate podman://<imageId>
-vcn authenticate git://<path_to_git_repo>
-vcn authenticate --hash <hash>
+cas authenticate <file>
+cas authenticate dir://<directory>
+cas authenticate docker://<imageId>
+cas authenticate podman://<imageId>
+cas authenticate git://<path_to_git_repo>
+cas authenticate --hash <hash>
 ```
 
 To output results in `json` or `yaml` formats:
 ```
-vcn authenticate --output=json <asset>
-vcn authenticate --output=yaml <asset>
+cas authenticate --output=json <asset>
+cas authenticate --output=yaml <asset>
 ```
-> Check out the [user guide](https://github.com/vchain-us/vcn/blob/master/docs/user-guide/formatted-output.md) for further details.
+> Check out the [user guide](https://github.com/codenotary/cas/blob/master/docs/user-guide/formatted-output.md) for further details.
 
 ## Documentation
 
-* [Command line usage](https://github.com/vchain-us/vcn/blob/master/docs/cmd/vcn.md)
-* [Configuration](https://github.com/vchain-us/vcn/blob/master/docs/user-guide/configuration.md)
-* [Environments](https://github.com/vchain-us/vcn/blob/master/docs/user-guide/environments.md)
-* [Formatted output (json/yaml)](https://github.com/vchain-us/vcn/blob/master/docs/user-guide/formatted-output.md)
-* [Notarization explained](https://github.com/vchain-us/vcn/blob/master/docs/user-guide/notarization.md)
+* [Command line usage](https://github.com/codenotary/cas/blob/master/docs/cmd/cas.md)
+* [Configuration](https://github.com/codenotary/cas/blob/master/docs/user-guide/configuration.md)
+* [Environments](https://github.com/codenotary/cas/blob/master/docs/user-guide/environments.md)
+* [Formatted output (json/yaml)](https://github.com/codenotary/cas/blob/master/docs/user-guide/formatted-output.md)
+* [Notarization explained](https://github.com/codenotary/cas/blob/master/docs/user-guide/notarization.md)
 
 ## Examples
 
@@ -213,15 +212,15 @@ docker pull hello-world
 Then use the below command to put in place an automatic safety check. It allows only verified images to run.
 
 ```
-vcn authenticate docker://hello-world && docker run hello-world
+cas authenticate docker://hello-world && docker run hello-world
 ```
 If an image was not verified, it will not run and nothing will execute.
 
 
 #### Authenticate multiple assets
-You can authenticate multiple assets by piping other command outputs into `vcn`:
+You can authenticate multiple assets by piping other command outputs into `cas`:
 ```
-ls | xargs -n 1 vcn authenticate
+ls | xargs -n 1 cas authenticate
 ```
 > The exit code will be `0` only if all the assets in you other command outputs are verified.
 
@@ -230,7 +229,7 @@ By adding `--signerID`, you can authenticate that your asset has been signed by 
 > A SignerID is the signer public address (represented as a 40 hex characters long string prefixed with `0x`).
 
 ```
-vcn authenticate --signerID 0x8f2d1422aed72df1dba90cf9a924f2f3eb3ccd87 docker://hello-world
+cas authenticate --signerID 0x8f2d1422aed72df1dba90cf9a924f2f3eb3ccd87 docker://hello-world
 ```
 
 #### Authenticate using the asset's hash
@@ -238,19 +237,19 @@ vcn authenticate --signerID 0x8f2d1422aed72df1dba90cf9a924f2f3eb3ccd87 docker://
 If you want to authenticate an asset using only its hash, you can do so by using the command as shown below:
 
 ```
-vcn authenticate --hash fce289e99eb9bca977dae136fbe2a82b6b7d4c372474c9235adc1741675f587e
+cas authenticate --hash fce289e99eb9bca977dae136fbe2a82b6b7d4c372474c9235adc1741675f587e
 ```
 
 #### Unsupport/untrust an asset you do not have anymore
 
 In case you want to unsupport/untrust an asset of yours that you no longer have, you can do so using the asset hash(es) with the following steps below.
 
-First, you’ll need to get the hash of the asset from your CodeNotary Immutable Ledger dashboard or alternatively you can use the `vcn list` command. Then, in the CLI, use:
+First, you’ll need to get the hash of the asset from your Community Attestation Service dashboard or alternatively you can use the `cas list` command. Then, in the CLI, use:
 
 ```
-vcn untrust --hash <asset's hash>
+cas untrust --hash <asset's hash>
 # or
-vcn unsupport --hash <asset's hash>
+cas unsupport --hash <asset's hash>
 ```
 
 #### Notarization within automated environments
@@ -258,14 +257,14 @@ vcn unsupport --hash <asset's hash>
 Simply, set up your environment accordingly using the following commands:
 
 ```bash
-export VCN_LC_API_KEY=apikeyhere
+export CAS_API_KEY=apikeyhere
 ```
 
-Once done, you can use `vcn` in your non-interactive environment using:
+Once done, you can use `cas` in your non-interactive environment using:
 
 ```
-vcn login --lc-host cnlc-host.com --lc-port 443
-vcn notarize <asset>
+cas login --host cnlc-host.com --port 443
+cas notarize <asset>
 ```
 
 > Other commands like `untrust` and `unsupport` will also work.
@@ -275,7 +274,7 @@ vcn notarize <asset>
 The user can upload custom metadata when doing an asset notarization using the `--attr` option, e.g.:
 
 ```shell script
-vcn n README.md --attr Testme=yes --attr project=5 --attr pipeline=test
+cas n README.md --attr Testme=yes --attr project=5 --attr pipeline=test
 ```
 
 This command would add the custom asset metadata Testme: yes, project: 5, pipeline: test.
@@ -283,7 +282,7 @@ This command would add the custom asset metadata Testme: yes, project: 5, pipeli
 The user can read the metadata back on asset authentication, i.e. using the `jq` utility:
 
 ```shell script
-vcn a README.md -o json | jq .metadata
+cas a README.md -o json | jq .metadata
 ```
 
 #### Inspect
@@ -291,13 +290,13 @@ Inspect has been extended with the addition of new filter: `--last`, `--first`, 
 With `--last` and `--first` are returned the N first or last respectively.
 
 ```shell script
-vcn inspect document.pdf --last 10
+cas inspect document.pdf --last 10
 ```
 
 With `--start` and `--end` it's possible to use a time range filter:
 
 ```shell script
-vcn inspect document.pdf --start 2020/10/28-08:00:00 --end 2020/10/28-17:00:00
+cas inspect document.pdf --start 2020/10/28-08:00:00 --end 2020/10/28-17:00:00
 ```
 
 If no filters are provided only maximum 100 items are returned.
@@ -306,67 +305,5 @@ If no filters are provided only maximum 100 items are returned.
 It's possible to filter results by signer identifier:
 
 ```shell script
-vcn inspect document.pdf --signerID CygBE_zb8XnprkkO6ncIrbbwYoUq5T1zfyEF6DhqcAI=
-```
-
-#### Using Cross-Ledgers API Keys
-
-When using Immutable Ledger server, it is possible to use API keys that are not
-specific to one ledger. This kind of keys is supported only by the `authenticate`
-and `inspect` sub-commands. If such an API key is used, the ledger must be explicitly
-specified:
-
-```shell script
-vcn authenticate --signerID <signer-id> --lc-ledger <ledger-name>
-vcn inspect --signerID <signer-id> --lc-ledger <ledger-name>
-```
-
-Alternatively, for using `vcn` in non-interactive mode, the user can supply the API
-Key via the `VCN_LC_LEDGER` environment variable.
-
-### Local API server
-
-Local API server is supported.
-The `API Key` can be submitted with the `x-notarization-lc-api-key` header.
-
-Notarize example:
-```bash
-curl --location --request POST '127.0.0.1:8082/notarize' \
---header 'x-notarization-lc-api-key: oikfnlbjinhhclvjiotckgwfuyfjxntxmcau' \
---header 'Content-Type: application/json' \
---data-raw '{
-"Kind":"file",
-"Name":"CONTRIBUTING.md",
-"Hash":"e2b58ab102dbadb3b1fd5139c8d2a937dc622b1b0d0907075edea163fe2cd093",
-"Size":1400,
-"ContentType":"text/plain; charset=utf-8"
-}'
-```
-Authenticate example:
-```bash
-curl --location --request GET '127.0.0.1:8081/authenticate/e2b58ab102dbadb3b1fd5139c8d2a937dc622b1b0d0907075edea163fe2cd093' \
---header 'x-notarization-lc-api-key: oikfnlbjinhhclvjiotckgwfuyfjxntxmcau'
-```
-Inspect example:
-```bash
-curl --location --request GET '127.0.0.1:8082/authenticate/e2b58ab102dbadb3b1fd5139c8d2a937dc622b1b0d0907075edea163fe2cd093' \
---header 'x-notarization-lc-api-key: oikfnlbjinhhclvjiotckgwfuyfjxntxmcau'
-```
-Inspect with signerID example:
-```bash
-curl --location --request GET '127.0.0.1:8081/inspect/e2b58ab102dbadb3b1fd5139c8d2a937dc622b1b0d0907075edea163fe2cd093?signerid=yZtm26ZgmZr37NQ41TXbJ2jStMVWZhE-3cp4Wb7gKQo=' \
---header 'x-notarization-lc-api-key: oikfnlbjinhhclvjiotckgwfuyfjxntxmcau'
-```
-Untrust example:
-```bash
-curl --location --request POST '127.0.0.1:8081/untrust' \
---header 'x-notarization-lc-api-key: oikfnlbjinhhclvjiotckgwfuyfjxntxmcau' \
---header 'Content-Type: application/json' \
---data-raw '{
-	"Kind":		"file",
-	"Name":		"CONTRIBUTING.md",
-	"Hash":		"e2b58ab102dbadb3b1fd5139c8d2a937dc622b1b0d0907075edea163fe2cd093",
-	"Size":		1400,
-	"ContentType":	"text/plain; charset=utf-8"
-}'
+cas inspect document.pdf --signerID CygBE_zb8XnprkkO6ncIrbbwYoUq5T1zfyEF6DhqcAI=
 ```

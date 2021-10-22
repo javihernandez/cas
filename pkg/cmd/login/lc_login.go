@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
- * This software is released under GPL3.
+ * Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+ * This software is released under Apache License 2.0.
  * The full license information can be found under:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  */
 
@@ -10,52 +10,45 @@ package login
 
 import (
 	"context"
-	"errors"
+	"crypto/ecdsa"
 	"fmt"
 
+	caserr "github.com/codenotary/cas/internal/errors"
+	"github.com/codenotary/cas/pkg/api"
+	"github.com/codenotary/cas/pkg/meta"
 	"github.com/fatih/color"
-	vcnerr "github.com/vchain-us/vcn/internal/errors"
-	"github.com/vchain-us/vcn/pkg/api"
-	"github.com/vchain-us/vcn/pkg/meta"
-	"github.com/vchain-us/vcn/pkg/store"
 	"google.golang.org/grpc/metadata"
 )
 
 // Execute the login action
-func ExecuteLC(host, port, lcCert, lcApiKey, lcLedger string, skipTlsVerify, lcNoTls bool) error {
-	if store.CNioContext() == true {
-		return errors.New("Already logged on CodeNotary.io. Please logout first.")
+func ExecuteLC(host, port, lcCert, lcApiKey, lcLedger string, skipTlsVerifySet, skipTlsVerify, noTlsSet, noTls bool, signingPubKey *ecdsa.PublicKey, skipSigVerify bool, enforceSignatureVerify bool) error {
+	if lcApiKey == "" {
+		return caserr.ErrNoLcApiKeyEnv
 	}
 
 	color.Set(meta.StyleAffordance())
-	fmt.Println("Logging into CodeNotary Ledger Compliance.")
+	fmt.Println("Logging into Community Attestation Service.")
 	color.Unset()
 
-	if lcApiKey != "" {
-		u, err := api.NewLcUser(lcApiKey, lcLedger, host, port, lcCert, skipTlsVerify, lcNoTls)
+	u, err := api.GetOrCreateLcUser(lcApiKey, lcLedger, host, port, lcCert, skipTlsVerifySet, skipTlsVerify, noTlsSet, noTls, signingPubKey, false)
+	if err != nil {
+		return err
+	}
+
+	md := metadata.Pairs(meta.CasPluginTypeHeaderName, meta.CasPluginTypeHeaderValue)
+	ctx := metadata.NewOutgoingContext(context.Background(), md)
+	_, err = u.Client.Health(ctx)
+	if err != nil {
+		return err
+	}
+
+	if !skipSigVerify {
+		err = u.CheckConnectionPublicKey(enforceSignatureVerify)
 		if err != nil {
 			return err
 		}
-		if u != nil {
-			err = u.Client.Connect()
-			if err != nil {
-				return err
-			}
-			md := metadata.Pairs(meta.VcnLCPluginTypeHeaderName, meta.VcnLCPluginTypeHeaderValue)
-			ctx := metadata.NewOutgoingContext(context.Background(), md)
-			_, err = u.Client.Health(ctx)
-			if err != nil {
-				return err
-			}
-			// Store the new config
-			if err := store.SaveConfig(); err != nil {
-				return err
-			}
-		}
 	}
-	if lcApiKey == "" {
-		return vcnerr.ErrNoLcApiKeyEnv
-	}
+
 	// shouldn't happen
 	return nil
 }

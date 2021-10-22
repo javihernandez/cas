@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
- * This software is released under GPL3.
+ * Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+ * This software is released under Apache License 2.0.
  * The full license information can be found under:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  */
 
@@ -59,7 +59,7 @@ func TestManifest(t *testing.T) {
 }
 
 func TestWriteReadManifest(t *testing.T) {
-	tmpfile, err := ioutil.TempFile("", "vcn-manifest")
+	tmpfile, err := ioutil.TempFile("", "cas-manifest")
 	if err != nil {
 		log.Fatal(err)
 	}

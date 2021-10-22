@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
- * This software is released under GPL3.
+ * Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+ * This software is released under Apache License 2.0.
  * The full license information can be found under:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  */
 
@@ -10,15 +10,16 @@ package wildcard
 
 import (
 	"errors"
-	"github.com/vchain-us/vcn/pkg/extractor/dir"
-	"github.com/vchain-us/vcn/pkg/extractor/file"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/vchain-us/vcn/pkg/api"
-	"github.com/vchain-us/vcn/pkg/extractor"
-	"github.com/vchain-us/vcn/pkg/uri"
+	"github.com/codenotary/cas/pkg/extractor/file"
+
+	"github.com/codenotary/cas/pkg/api"
+	"github.com/codenotary/cas/pkg/extractor"
+	"github.com/codenotary/cas/pkg/uri"
 )
 
 // Scheme for dir
@@ -33,7 +34,6 @@ const PathKey = "path"
 type opts struct {
 	initIgnoreFile    bool
 	skipIgnoreFileErr bool
-	recursive         bool
 }
 
 // Artifact returns a file *api.Artifact from a given u
@@ -57,46 +57,28 @@ func Artifact(u *uri.URI, options ...extractor.Option) ([]*api.Artifact, error) 
 
 	// provided path is a file
 	if fileInfo, err := os.Stat(p); err == nil {
-		if !fileInfo.IsDir() {
-			u, err := uri.Parse("file://" + p)
-			if err != nil {
-				return nil, err
-			}
-			return file.Artifact(u)
+		if fileInfo.IsDir() {
+			return nil, fmt.Errorf("folder notarization is not allowed")
 		}
-		u, err := uri.Parse("dir://" + p)
+		u, err := uri.Parse("file://" + p)
 		if err != nil {
 			return nil, err
 		}
-		return dir.Artifact(u)
+		return file.Artifact(u)
 	}
 
 	root := filepath.Dir(p)
 
-	if opts.initIgnoreFile {
-		if err := dir.InitIgnoreFile(path); err != nil {
-			if !opts.skipIgnoreFileErr {
-				return nil, err
-			}
-		}
-	}
-
 	// build a list of all files matching the wildcard provided. Method is based on filepath.Glob
 	var filePaths []string
-	if opts.recursive {
-		err = filepath.Walk(root, buildFilePaths(wildcard, &filePaths))
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		i, err := os.Stat(root)
-		if err != nil {
-			return nil, err
-		}
-		err = buildFilePaths(wildcard, &filePaths)(root, i, nil)
-		if err != nil {
-			return nil, err
-		}
+
+	i, err := os.Stat(root)
+	if err != nil {
+		return nil, err
+	}
+	err = buildFilePaths(wildcard, &filePaths)(root, i, nil)
+	if err != nil {
+		return nil, err
 	}
 
 	if len(filePaths) == 0 {
@@ -138,16 +120,6 @@ func buildFilePaths(wildcard string, filePaths *[]string) func(ele string, info 
 					}
 				}
 			}
-		}
-		return nil
-	}
-}
-
-// WithRecursive wildcard usage will walk inside subdirectories of provided path
-func WithRecursive() extractor.Option {
-	return func(o interface{}) error {
-		if o, ok := o.(*opts); ok {
-			o.recursive = true
 		}
 		return nil
 	}

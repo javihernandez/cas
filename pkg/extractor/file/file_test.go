@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
- * This software is released under GPL3.
+ * Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+ * This software is released under Apache License 2.0.
  * The full license information can be found under:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  */
 
@@ -18,11 +18,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/vchain-us/vcn/pkg/uri"
+	"github.com/codenotary/cas/pkg/uri"
 )
 
 func TestFile(t *testing.T) {
-	file, err := ioutil.TempFile("", "vcn-test-scheme-file")
+	file, err := ioutil.TempFile("", "cas-test-scheme-file")
 	if err != nil {
 		log.Fatal(err)
 	}

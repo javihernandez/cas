@@ -1,0 +1,81 @@
+name: Build and run testsuite
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build_test:
+    name: Compile and run "make test"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - {os: ubuntu-latest, go: 1.13}
+          - {os: ubuntu-latest, go: 1.15}
+          - {os: windows-latest, go: 1.15}
+          - {os: macos-latest, go: 1.15}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+      - name: Build
+        run: |
+          make
+      - name: Run tests
+        run: |
+          make TEST_FLAGS="-timeout 60s -coverprofile cover.out -race -v" test
+      - uses: actions/upload-artifact@v2
+        with:
+          name: cas-${{ matrix.os }}-go-${{ matrix.go }}
+          path: ${{ github.workspace }}/cas*
+          # We can change this to whatever we see fit, uncommenting will make it so only 30 days worth of artifacts are kept moving forward
+          #retention-days: 30
+  cnil_integration_test:
+    name: CNIL integration test
+    needs: build_test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - {os: ubuntu-latest, go: 1.13, exe: cas}
+          - {os: ubuntu-latest, go: 1.15, exe: cas}
+          - {os: windows-latest, go: 1.15, exe: cas.exe}
+          - {os: macos-latest, go: 1.15, exe: cas}
+    env:
+      CNIL_GITHUB_TEST_API_KEY: ${{ secrets.CNIL_GITHUB_TEST_API_KEY }}
+      CNIL_GITHUB_TEST_HOST: ${{ secrets.CNIL_GITHUB_TEST_HOST }}
+      CNIL_GITHUB_TEST_PORT: ${{ secrets.CNIL_GITHUB_TEST_PORT }}
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: cas-${{ matrix.os }}-go-${{ matrix.go }}
+          path: ${{ github.workspace }}/bin
+      - name: Set permissions on cas executable
+        run: |
+          chmod +x ${GITHUB_WORKSPACE}/bin/*
+        shell: bash
+        if: runner.os == 'Linux' || runner.os == 'MacOS'
+      - name: Test cas operations
+        shell: bash
+        run: |
+          export PATH=$PATH:${GITHUB_WORKSPACE}/bin
+          export CAS_API_KEY=${CNIL_GITHUB_TEST_API_KEY}
+
+          echo "This is some content" > README.txt
+
+          ${{ matrix.exe }} login --host=${CNIL_GITHUB_TEST_HOST} --port=${CNIL_GITHUB_TEST_PORT}
+          ${{ matrix.exe }} n README.txt --host=${CNIL_GITHUB_TEST_HOST} --port=${CNIL_GITHUB_TEST_PORT}
+          ${{ matrix.exe }} a -s github README.txt --host=${CNIL_GITHUB_TEST_HOST} --port=${CNIL_GITHUB_TEST_PORT}
+
+          # with CI attributes and attachments
+          ${{ matrix.exe }} n README.txt --host=${CNIL_GITHUB_TEST_HOST} --port=${CNIL_GITHUB_TEST_PORT} --ci-attr --attach README.txt
+
+          # unknown signer
+          ${{ matrix.exe }} a -s unknown README.txt --host=${CNIL_GITHUB_TEST_HOST} --port=${CNIL_GITHUB_TEST_PORT} || retval=$?
+          test $retval -eq 2
+
+          # revoked signer
+          ${{ matrix.exe }} a -s new-revoked README.txt --host=${CNIL_GITHUB_TEST_HOST} --port=${CNIL_GITHUB_TEST_PORT} || retval=$?
+          test $retval -eq 4

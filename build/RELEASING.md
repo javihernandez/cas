@@ -1,15 +1,15 @@
-# Relasing a new `vcn` version
+# Relasing a new `cas` version
 
-This document provides all steps required by a maintainer to release a new `vcn` version.
+This document provides all steps required by a maintainer to release a new `cas` version.
 
-We assume all commands are entered from the root of the `vcn` working directory.
+We assume all commands are entered from the root of the `cas` working directory.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html), in this document we will use vX.Y.V as placeholder for the version we are going to relase.
 
 Before relasing, ensure that all modifications have been tested and pushed. When the release introduce a user-facing change, please ensure the documentation is updated accordingly. Last but not least, remind to run `make docs/cmd` to regenerate the Markdown CLI documentation when the CLI interface or the help messages have been modified.
 
 ### About the branching model
 
-Although `vcn` aims to have a "[OneFlow](https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow)" git branching model, [release branches](https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow#release-branches) have never been used.
+Although `cas` aims to have a "[OneFlow](https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow)" git branching model, [release branches](https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow#release-branches) have never been used.
 Thus, the instructions on the current document assume that just the `master` branch is used for the release process (with all modifications previously merged in). However the whole process can be easily adapter to a release branch if needed.
 
 ## 1. Bump version (vX.Y.Z)
@@ -43,9 +43,9 @@ git tag vX.Y.Z
 ```
 > Do not push now.
 
-Finally, sign the commit using `vcn` itself:
+Finally, sign the commit using `cas` itself:
 ```
-vcn n -p git://.
+cas n -p git://.
 ```
 
 ## 3. Make dist files
@@ -61,7 +61,7 @@ SIGNCODE_PVK_PASSWORD=<pvk password> SIGNCODE_PVK=<path to vchian.pvk> SIGNCODE_
 > Distribution files will be created into the `dist` directory.
 
 
-Check that everthing worked as expected and finally sign all files using `vcn` itself:
+Check that everthing worked as expected and finally sign all files using `cas` itself:
 ```
 make dist/sign
 ```
@@ -73,9 +73,9 @@ Push your commits and tag:
 git push
 git push --tags
 ```
-> From now on, your relase will be publicy visible, and [dockerhub](https://hub.docker.com/repository/docker/codenotary/vcn/builds) should start building docker images for `vcn`.
+> From now on, your relase will be publicy visible, and [dockerhub](https://hub.docker.com/repository/docker/codenotary/cas/builds) should start building docker images for `cas`.
 
-Now you can edit the vX.Y.Z newly created [release on GitHub](https://github.com/vchain-us/vcn/releases), using the follwing template
+Now you can edit the vX.Y.Z newly created [release on GitHub](https://github.com/codenotary/cas/releases), using the follwing template
 
 ```
 # Changelog
@@ -85,7 +85,7 @@ Now you can edit the vX.Y.Z newly created [release on GitHub](https://github.com
 # Downloads
 
 **Docker image**
-https://hub.docker.com/r/codenotary/vcn
+https://hub.docker.com/r/codenotary/cas
 
 **Binaries**
 
@@ -98,33 +98,33 @@ Finally, uploads all files from `dist`.
 
 ## 5. Sign docker images
 
-Once [dockerhub](https://hub.docker.com/repository/docker/codenotary/vcn/builds) has finished to build the images, then pull, check and finally sign them.
+Once [dockerhub](https://hub.docker.com/repository/docker/codenotary/cas/builds) has finished to build the images, then pull, check and finally sign them.
 
 Pull:
 ```
-docker pull codenotary/vcn:vX.Y.Z
-docker pull codenotary/vcn:vX.Y.Z-docker
+docker pull codenotary/cas:vX.Y.Z
+docker pull codenotary/cas:vX.Y.Z-docker
 ```
 
 Check:
 ```
-docker run --rm -it codenotary/vcn:vX.Y.Z info
-docker run --rm -it codenotary/vcn:vX.Y.Z-docker info
+docker run --rm -it codenotary/cas:vX.Y.Z info
+docker run --rm -it codenotary/cas:vX.Y.Z-docker info
 ```
 
 Sign:
 ```
-vcn n -p docker://codenotary/vcn:X.Y.Z
-vcn n -p docker://codenotary/vcn:X.Y.Z-docker
+cas n -p docker://codenotary/cas:X.Y.Z
+cas n -p docker://codenotary/cas:X.Y.Z-docker
 ```
 
 ## 6. Miscellaneous
 
 ### Homebrew
 
-Once a new `vcn` version has been released, the [vcn Homebrew formula](https://github.com/vchain-us/homebrew-brew/blob/master/Formula/vcn.rb) must be updated accordingly.
+Once a new `cas` version has been released, the [cas Homebrew formula](https://github.com/vchain-us/homebrew-brew/blob/master/Formula/cas.rb) must be updated accordingly.
 
 ### CodeNotary platform
 
-Once a new `vcn` version has been released, the latest version should be set on the CodeNotary platform backend.
-Then you can check the latest version has been set properly [here](https://api.codenotary.io/foundation/v1/version/vcn/latest).
+Once a new `cas` version has been released, the latest version should be set on the CodeNotary platform backend.
+Then you can check the latest version has been set properly [here](https://api.codenotary.io/foundation/v1/version/cas/latest).

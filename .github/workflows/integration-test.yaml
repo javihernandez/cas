@@ -1,0 +1,40 @@
+name: Build binary, run integration test suite on Community Attestation Service (Short tests)
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '**'
+jobs:
+  cnil_integration_test:
+    name: Test cas against cncloud and blockhain backend
+    runs-on: ubuntu-latest
+    env:
+      CNIL_GITHUB_TEST_PORT: ${{ secrets.CNIL_GITHUB_TEST_PORT }}
+      CNIL_GITHUB_TEST_API_KEY1: ${{ secrets.CNIL_GITHUB_TEST_API_KEY1 }}
+      CNIL_GITHUB_TEST_API_KEY2: ${{ secrets.CNIL_GITHUB_TEST_API_KEY2 }}
+      CNIL_GITHUB_REVOKED_KEY: ${{secrets.CNIL_GITHUB_REVOKED_KEY}}
+      CNIL_GITHUB_TEST_HOST: ${{secrets.CNIL_GITHUB_TEST_HOST}}
+      CNIL_SIGNERID1: ${{secrets.CNIL_SIGNERID1}}
+      REVOKED_SIGNERID: ${{secrets.REVOKED_SIGNERID}}
+      REVOKED_HASH: ${{secrets.REVOKED_HASH}}
+      UNTRUSTED_HASH: ${{secrets.UNTRUSTED_HASH}}
+      IMAGE_TO_NOTARIZE: ${{secrets.IMAGE_TO_NOTARIZE}}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+
+      - name: Test cas operations
+        shell: bash
+        run: |
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sudo sh get-docker.sh
+          export CAS_SKIP_SIGNATURE_VERIFY=true
+          docker pull ${IMAGE_TO_NOTARIZE}
+          cd ${GITHUB_WORKSPACE}
+          go test integration/cli_test.go -test.v
+          go test integration/integration_test.go -run ".*Context" -test.v

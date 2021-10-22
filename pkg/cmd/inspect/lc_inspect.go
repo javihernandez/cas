@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
- * This software is released under GPL3.
+ * Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+ * This software is released under Apache License 2.0.
  * The full license information can be found under:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  */
 
@@ -11,18 +11,19 @@ package inspect
 import (
 	"context"
 	"fmt"
+	"math"
+	"time"
+
 	immuschema "github.com/codenotary/immudb/pkg/api/schema"
+	"github.com/codenotary/cas/pkg/api"
+	"github.com/codenotary/cas/pkg/cmd/internal/cli"
+	"github.com/codenotary/cas/pkg/cmd/internal/types"
+	"github.com/codenotary/cas/pkg/meta"
 	"github.com/fatih/color"
 	"github.com/vchain-us/ledger-compliance-go/schema"
-	"github.com/vchain-us/vcn/pkg/api"
-	"github.com/vchain-us/vcn/pkg/cmd/internal/cli"
-	"github.com/vchain-us/vcn/pkg/cmd/internal/types"
-	"github.com/vchain-us/vcn/pkg/meta"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"math"
-	"time"
 )
 
 func lcInspect(hash string, signerID string, u *api.LcUser, first, last uint64, start, end string, output string) (err error) {
@@ -60,14 +61,14 @@ func lcInspect(hash string, signerID string, u *api.LcUser, first, last uint64, 
 }
 
 func GetLcResults(hash, signerID string, u *api.LcUser, first, last uint64, start, end string) (results []*types.LcResult, err error) {
-	md := metadata.Pairs(meta.VcnLCPluginTypeHeaderName, meta.VcnLCPluginTypeHeaderValue)
+	md := metadata.Pairs(meta.CasPluginTypeHeaderName, meta.CasPluginTypeHeaderValue)
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
 
 	var key []byte
 	if signerID == "" {
 		key = []byte(hash)
 	} else {
-		key = api.AppendPrefix(meta.VcnPrefix, []byte(signerID))
+		key = api.AppendPrefix(meta.CasPluginTypeHeaderValue, []byte(signerID))
 		key = api.AppendSignerId(hash, key)
 	}
 

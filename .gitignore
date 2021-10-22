@@ -18,7 +18,7 @@ vendor
 .DS_Store
 
 # Compiled binaries
-/vcn
+/cas
 /dist
 
 # IntelliJ
@@ -33,3 +33,6 @@ vendor
 
 # precommit
 .pre-commit-config.yaml
+
+# integration testing
+!integration/work/.gitkeep 

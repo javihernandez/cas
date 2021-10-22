@@ -1,28 +1,28 @@
 /*
- * Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
- * This software is released under GPL3.
+ * Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+ * This software is released under Apache License 2.0.
  * The full license information can be found under:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  */
 
 package types
 
 import (
-	"github.com/vchain-us/vcn/pkg/api"
+	"github.com/codenotary/cas/pkg/api"
 )
 
 type LcResult struct {
 	api.LcArtifact `yaml:",inline"`
-	Verified       bool           `json:"verified" yaml:"verified" vcn:"Verified"`
-	Verbose        *LcVerboseInfo `yaml:",inline" vcn:"Verbose"`
+	Verified       bool           `json:"verified" yaml:"verified" cas:"Verified"`
+	Verbose        *LcVerboseInfo `yaml:"verbose,omitempty" cas:"Verbose"`
 	Errors         []error        `json:"error,omitempty" yaml:"error,omitempty"`
 }
 
 type LcVerboseInfo struct {
-	LedgerName string `json:"ledgerName" yaml:"ledgerName" vcn:"LedgerName"`
-	LocalSID   string `json:"localSID" yaml:"localSID" vcn:"LocalSID"`
-	ApiKey     string `json:"apiKey" yaml:"apiKey" vcn:"ApiKey"`
+	LedgerName string `json:"ledgerName" yaml:"ledgerName" cas:"LedgerName"`
+	LocalSID   string `json:"localSID" yaml:"localSID" cas:"LocalSID"`
+	ApiKey     string `json:"apiKey" yaml:"apiKey" cas:"ApiKey"`
 }
 
 func (r *LcResult) AddError(err error) {
@@ -39,9 +39,6 @@ func NewLcResult(lca *api.LcArtifact, verified bool, verbose *LcVerboseInfo) *Lc
 	default:
 		r = LcResult{}
 	}
-
-	// Do not show status and level from platform
-	//r.Status =
 
 	return &r
 }

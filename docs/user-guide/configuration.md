@@ -1,17 +1,17 @@
 # Configuration
 
-By default, the `vcn` command line stores its config file (`config.json`) in a directory called `.vcn` within your `$HOME` directory.
+By default, the `cas` command line stores its config file (`config.json`) in temporary directory, for Linux the path is `/tmp/.cas/config.json`, for Windows - `c:\temp\config.json` or `c:\windows\temp\config.json`.
 > If the `STAGE` environment variable has been set, the default configuration directory can be different. See [environments](environments.md).
 
-However, you can specify a different location for the config file via the `--vcnpath` command line option. For example:
+However, you can specify a different location for the config file via the `--caspath` command line option. For example:
 
 ```
-vcn --vcnpath /path/to/your/config.json
+cas --caspath /path/to/your/config.json
 ```
 
 <!-- The config file contains paths to keystore directories, and stores credentials of the current authenticated user.
 
-`vcn` manages these files and directories and you should not modify them.
+`cas` manages these files and directories and you should not modify them.
 However, *you can modify* the config file to control where keys are stored. -->
 
 ## Config file
@@ -20,34 +20,22 @@ However, *you can modify* the config file to control where keys are stored. -->
 
 ```
 {
-  "currentcontext": "example@example.net",
-  "users": [
-    {
-      "email": "example@example.net",
-      "token": "<authentication_bearer_token>"
-      ]
-    }
-  ]
+  "currentcontext": {
+    "LcHost": "cas.codenotary.com",
+    "LcPort": "443"
+  },
+  "schemaversion": 3,
+  "users": null
 }
 ```
 
-### Breakdown of `config.json`'s components
+### Breakdown of `config.json`'s currenctcontext section
 
-#### currentcontext
+The property `currentcontext` holds the connection details for active session. Supported fields:
 
-The property `currentcontext` holds the reference (user's email) to the current authenticated user.
 
-#### users
-
-The property `users` is an array of objects (one entry per user). Each object holds:
-
- - `email` the email address that identifies a specific user
- - `token` a bearer token used obtained by using `vcn login`
- <!-- - `keystore` path to the actual directory that store private keys -->
-
-<!-- ### Storing secret keys
-
-Secret keys are stored as encrypted JSON files according to the Web3 Secret Storage specification.
-See https://github.com/ethereum/wiki/wiki/Web3-Secret-Storage-Definition for more information.
-
-You can modify the `keystore` property according to your needs in order to store secret keys in a different location. -->
+ - `LcHost` - server's hostname or IP address
+ - `LcPort` - server's port
+ - `LcCert` - absolute path to a certificate file needed to set up TLS connection
+ - `LcSkipTlsVerify` - boolean flag instructing to skip server TLS verification (`false` by default)
+ - `LcNoTls` - boolean flag instructing to not to use TLS

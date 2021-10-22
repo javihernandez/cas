@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
- * This software is released under GPL3.
+ * Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+ * This software is released under Apache License 2.0.
  * The full license information can be found under:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  */
 
@@ -12,20 +12,19 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/codenotary/cas/pkg/cmd/internal/cli"
+	"github.com/codenotary/cas/pkg/cmd/internal/types"
+
+	"github.com/codenotary/cas/pkg/meta"
 	"github.com/spf13/viper"
-	"github.com/vchain-us/vcn/internal/assert"
-	"github.com/vchain-us/vcn/pkg/meta"
 
-	"github.com/vchain-us/vcn/pkg/cmd/internal/cli"
-
+	"github.com/codenotary/cas/pkg/api"
+	"github.com/codenotary/cas/pkg/extractor"
+	"github.com/codenotary/cas/pkg/store"
 	"github.com/spf13/cobra"
-	"github.com/vchain-us/vcn/pkg/api"
-	"github.com/vchain-us/vcn/pkg/cmd/internal/types"
-	"github.com/vchain-us/vcn/pkg/extractor"
-	"github.com/vchain-us/vcn/pkg/store"
 )
 
-// NewCommand returns the cobra command for `vcn inspect`
+// NewCommand returns the cobra command for `cas inspect`
 func NewCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "inspect",
@@ -35,19 +34,13 @@ func NewCommand() *cobra.Command {
 Returns the asset history with low-level information
 
 Environment variables:
-VCN_USER=
-VCN_PASSWORD=
-VCN_NOTARIZATION_PASSWORD=
-VCN_NOTARIZATION_PASSWORD_EMPTY=
-VCN_OTP=
-VCN_OTP_EMPTY=
-VCN_LC_HOST=
-VCN_LC_PORT=
-VCN_LC_CERT=
-VCN_LC_SKIP_TLS_VERIFY=false
-VCN_LC_NO_TLS=false
-VCN_LC_API_KEY=
-VCN_LC_LEDGER=
+CAS_HOST=
+CAS_PORT=
+CAS_CERT=
+CAS_SKIP_TLS_VERIFY=false
+CAS_NO_TLS=false
+CAS_API_KEY=
+CAS_LEDGER=
 `,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return viper.BindPFlags(cmd.Flags())
@@ -77,10 +70,10 @@ VCN_LC_LEDGER=
 			return cobra.MinimumNArgs(1)(cmd, args)
 		},
 		Example: `
-vcn inspect document.pdf --last 1
-vcn inspect document.pdf --first 1
-vcn inspect document.pdf --start 2020/10/28-08:00:00 --end 2020/10/28-17:00:00 --first 10
-vcn inspect document.pdf --signerID CygBE_zb8XnprkkO6ncIrbbwYoUq5T1zfyEF6DhqcAI= --start 2020/10/28-16:00:00 --end 2020/10/28-17:10:00 --last 3
+cas inspect document.pdf --last 1
+cas inspect document.pdf --first 1
+cas inspect document.pdf --start 2020/10/28-08:00:00 --end 2020/10/28-17:00:00 --first 10
+cas inspect document.pdf --signerID CygBE_zb8XnprkkO6ncIrbbwYoUq5T1zfyEF6DhqcAI= --start 2020/10/28-16:00:00 --end 2020/10/28-17:10:00 --last 3
 `,
 	}
 
@@ -91,18 +84,18 @@ vcn inspect document.pdf --signerID CygBE_zb8XnprkkO6ncIrbbwYoUq5T1zfyEF6DhqcAI=
 	cmd.Flags().String("hash", "", "specify a hash to inspect, if set no ARG can be used")
 	cmd.Flags().Bool("extract-only", false, "if set, print only locally extracted info")
 	// ledger compliance flags
-	cmd.Flags().String("lc-host", "", meta.VcnLcHostFlagDesc)
-	cmd.Flags().String("lc-port", "443", meta.VcnLcPortFlagDesc)
-	cmd.Flags().String("lc-cert", "", meta.VcnLcCertPathDesc)
-	cmd.Flags().Bool("lc-skip-tls-verify", false, meta.VcnLcSkipTlsVerifyDesc)
-	cmd.Flags().Bool("lc-no-tls", false, meta.VcnLcNoTlsDesc)
-	cmd.Flags().String("lc-api-key", "", meta.VcnLcApiKeyDesc)
-	cmd.Flags().String("lc-ledger", "", meta.VcnLcLedgerDesc)
+	cmd.Flags().String("host", "", meta.CasHostFlagDesc)
+	cmd.Flags().String("port", "", meta.CasPortFlagDesc) // set to default port in GetOrCreateLcUser(), if not available from context
+	cmd.Flags().String("cert", "", meta.CasCertPathDesc)
+	cmd.Flags().Bool("skip-tls-verify", false, meta.CasSkipTlsVerifyDesc)
+	cmd.Flags().Bool("no-tls", false, meta.CasNoTlsDesc)
+	cmd.Flags().String("api-key", "", meta.CasApiKeyDesc)
+	cmd.Flags().String("ledger", "", meta.CasLedgerDesc)
 
 	cmd.Flags().String("signerID", "", "specify a signerID to refine inspection result on ledger compliance")
 
-	cmd.Flags().Uint64("first", 0, "set the limit for the first elements filter")
-	cmd.Flags().Uint64("last", 0, "set the limit for the last elements filter")
+	cmd.Flags().Uint64("first", 0, "set the limit for the first elements filter. MAX 10")
+	cmd.Flags().Uint64("last", 0, "set the limit for the last elements filter. MAX 10")
 
 	cmd.Flags().String("start", "", "set the start of date and time range filter. Example 2020/10/28-16:00:00")
 	cmd.Flags().String("end", "", "set the end of date and time range filter. Example 2020/10/28-16:00:00")
@@ -149,78 +142,45 @@ func runInspect(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	lcHost := viper.GetString("lc-host")
-	lcPort := viper.GetString("lc-port")
-	lcCert := viper.GetString("lc-cert")
-	skipTlsVerify := viper.GetBool("lc-skip-tls-verify")
-	noTls := viper.GetBool("lc-no-tls")
-	lcApiKey := viper.GetString("lc-api-key")
-	lcLedger := viper.GetString("lc-ledger")
+	lcHost := viper.GetString("host")
+	lcPort := viper.GetString("port")
+	lcCert := viper.GetString("cert")
+	lcApiKey := viper.GetString("api-key")
+	lcLedger := viper.GetString("ledger")
 
-	//check if an lcUser is present inside the context
-	var lcUser *api.LcUser
-	uif, err := api.GetUserFromContext(store.Config().CurrentContext, lcApiKey, lcLedger)
+	lcUser, err := api.GetOrCreateLcUser(lcApiKey, lcLedger, lcHost, lcPort, lcCert, viper.IsSet("skip-tls-verify"), viper.GetBool("skip-tls-verify"), viper.IsSet("no-tls"), viper.GetBool("no-tls"), nil, false)
 	if err != nil {
 		return err
 	}
-	if lctmp, ok := uif.(*api.LcUser); ok {
-		lcUser = lctmp
-	}
 
-	// use credentials if host is at least host is provided
-	if lcHost != "" && lcApiKey != "" {
-		lcUser, err = api.NewLcUser(lcApiKey, lcLedger, lcHost, lcPort, lcCert, skipTlsVerify, noTls)
-		if err != nil {
-			return err
-		} // Store the new config
-		if err := store.SaveConfig(); err != nil {
-			return err
-		}
-	}
-
-	if lcUser != nil {
-		err = lcUser.Client.Connect()
-		if err != nil {
-			return err
-		}
-		first, err := cmd.Flags().GetUint64("first")
-		if err != nil {
-			return err
-		}
-		last, err := cmd.Flags().GetUint64("last")
-		if err != nil {
-			return err
-		}
-		start, err := cmd.Flags().GetString("start")
-		if err != nil {
-			return err
-		}
-		end, err := cmd.Flags().GetString("end")
-		if err != nil {
-			return err
-		}
-
-		if first == 0 && last == 0 {
-			last = 100
-			fmt.Printf("no filter is specified. At maximum last 100 items will be returned\n")
-		}
-		return lcInspect(hash, signerID, lcUser, first, last, start, end, output)
-	}
-
-	// User
-	if err := assert.UserLogin(); err != nil {
+	first, err := cmd.Flags().GetUint64("first")
+	if err != nil {
 		return err
 	}
-	u, ok := uif.(*api.User)
-	if !ok {
-		return fmt.Errorf("cannot load the current user")
+	if first > 10 {
+		return fmt.Errorf("only first 10 items are allowed when using --last flag")
+	}
+	last, err := cmd.Flags().GetUint64("last")
+	if err != nil {
+		return err
+	}
+	if first > 10 {
+		return fmt.Errorf("only last 10 items are allowed when using --first flag")
+	}
+	start, err := cmd.Flags().GetString("start")
+	if err != nil {
+		return err
+	}
+	end, err := cmd.Flags().GetString("end")
+	if err != nil {
+		return err
 	}
 
-	if hasAuth, _ := u.IsAuthenticated(); hasAuth && output == "" {
-		fmt.Printf("Current user: %s\n", u.Email())
+	if first == 0 && last == 0 {
+		last = 10
+		fmt.Printf("no filter is specified. At maximum last 10 items will be returned\n")
 	}
-
-	return inspect(hash, u, output)
+	return lcInspect(hash, signerID, lcUser, first, last, start, end, output)
 }
 
 func extractInfo(arg string, output string) (hash string, err error) {
@@ -240,54 +200,6 @@ func extractInfo(arg string, output string) (hash string, err error) {
 	if output == "" {
 		fmt.Printf("Extracted info from: %s\n\n", arg)
 	}
-	cli.Print(output, types.NewResult(a[0], nil, nil))
+	cli.Print(output, types.NewResult(a[0], nil))
 	return
-}
-
-func inspect(hash string, u *api.User, output string) error {
-	results, err := GetResults(hash, u)
-	if err != nil {
-		return err
-	}
-
-	if output == "" {
-		fmt.Printf(
-			`%d notarizations found for "%s"
-
-`,
-			len(results), hash)
-	}
-
-	return cli.PrintSlice(output, results)
-}
-
-func GetResults(hash string, u *api.User) ([]types.Result, error) {
-	verifications, err := api.BlockChainInspect(hash)
-	if err != nil {
-		return nil, err
-	}
-	l := len(verifications)
-
-	results := make([]types.Result, l)
-	for i, v := range verifications {
-		ar, err := api.LoadArtifact(u, hash, v.MetaHash())
-		results[i] = *types.NewResult(nil, ar, &v)
-		if err != nil {
-			results[i].AddError(err)
-		}
-		// check if artifact is synced, if any
-		if ar != nil {
-			if v.Status.String() != ar.Status {
-				results[i].AddError(fmt.Errorf(
-					"status not in sync (blockchain: %s, platform: %s)", v.Status.String(), ar.Status,
-				))
-			}
-			if int64(v.Level) != ar.Level {
-				results[i].AddError(fmt.Errorf(
-					"level not in sync (blockchain: %d, platform: %d)", v.Level, ar.Level,
-				))
-			}
-		}
-	}
-	return results, nil
 }

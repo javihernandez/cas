@@ -19,7 +19,7 @@ Thanks! -->
 
 **Environment**
 ```shell
-# run "vcn info" and copy/paste the output here
+# run "cas info" and copy/paste the output here
 ```
 
 **Additional info (any other context about the problem)**

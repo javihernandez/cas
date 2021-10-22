@@ -2,17 +2,19 @@ package sign
 
 import (
 	"fmt"
+
 	"github.com/caarlos0/spin"
+	"github.com/codenotary/cas/pkg/api"
+	"github.com/codenotary/cas/pkg/cmd/internal/cli"
+	"github.com/codenotary/cas/pkg/cmd/internal/types"
+	"github.com/codenotary/cas/pkg/meta"
 	"github.com/fatih/color"
 	"github.com/schollz/progressbar/v3"
-	"github.com/vchain-us/vcn/pkg/api"
-	"github.com/vchain-us/vcn/pkg/cmd/internal/cli"
-	"github.com/vchain-us/vcn/pkg/cmd/internal/types"
-	"github.com/vchain-us/vcn/pkg/meta"
+	"github.com/vchain-us/ledger-compliance-go/schema"
 )
 
-func LcSign(u *api.LcUser, artifacts []*api.Artifact, state meta.Status, output string, name string, metadata map[string]interface{}, attach []string, verbose bool) error {
-
+// LcSign ...
+func LcSign(u *api.LcUser, artifacts []*api.Artifact, state meta.Status, output string, name string, metadata map[string]interface{}, verbose bool, bom []*schema.VCNDependency) error {
 	if output == "" {
 		color.Set(meta.StyleAffordance())
 		fmt.Print("Your assets will not be uploaded. They will be processed locally.")
@@ -30,42 +32,25 @@ func LcSign(u *api.LcUser, artifacts []*api.Artifact, state meta.Status, output 
 		bar = progressbar.Default(int64(lenArtifacts))
 	}
 
-	var hook *hook
-	if len(artifacts) == 1 {
-		hook = newHook(artifacts[0])
-		// Override the asset's name, if provided by --name
-		if name != "" {
-			artifacts[0].Name = name
-		}
-	}
-
 	for _, a := range artifacts {
 		// Copy user provided custom attributes
 		a.Metadata.SetValues(metadata)
 
 		// @todo mmeloni use verified sign
-		verified, tx, err := u.Sign(
+		tx, err := u.Sign(
 			*a,
 			api.LcSignWithStatus(state),
-			api.LcSignWithAttachments(attach),
+			api.LcSignWithBom(bom),
 		)
 		if err != nil {
 			if err == api.ErrNotVerified {
 				color.Set(meta.StyleError())
-				fmt.Println("the ledger is compromised. Please contact the CodeNotary Immutable Ledger administrators")
+				fmt.Println("the ledger is compromised. Please contact the Community Attestation Service administrators")
 				color.Unset()
 				fmt.Println()
 				return nil
 			}
 			return err
-		}
-
-		// writingManifest
-		if hook != nil && len(artifacts) == 1 {
-			err = hook.finalizeWithoutVerification(false)
-			if err != nil {
-				return cli.PrintWarning(output, err.Error())
-			}
 		}
 
 		if err != nil {
@@ -75,20 +60,20 @@ func LcSign(u *api.LcUser, artifacts []*api.Artifact, state meta.Status, output 
 			fmt.Println()
 		}
 
-		artifact, verified, err := u.LoadArtifact(a.Hash, "", "", tx)
+		artifact, verified, err := u.LoadArtifact(a.Hash, "", "", tx, nil)
 		if err != nil {
 			if err == api.ErrNotVerified {
 				color.Set(meta.StyleError())
-				fmt.Println("the ledger is compromised. Please contact the CodeNotary Immutable Ledger administrators")
+				fmt.Println("the ledger is compromised. Please contact the Community Attestation Service administrators")
 				color.Unset()
 				fmt.Println()
-				artifact.Status = meta.StatusUnknown
 				return nil
 			}
 			return cli.PrintWarning(output, err.Error())
 		}
+		artifact.Deps = a.Deps
 
-		if lenArtifacts > 1 && output == "" {
+		if bar != nil {
 			if err := bar.Add(1); err != nil {
 				return err
 			}

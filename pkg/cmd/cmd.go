@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
- * This software is released under GPL3.
+ * Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+ * This software is released under Apache License 2.0.
  * The full license information can be found under:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  */
 
@@ -12,28 +12,18 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"syscall"
 
-	"github.com/vchain-us/vcn/pkg/cmd/alert"
+	"github.com/codenotary/cas/pkg/cmd/bom"
+	"github.com/codenotary/cas/pkg/cmd/inspect"
+	"github.com/codenotary/cas/pkg/cmd/internal/cli"
+	"github.com/codenotary/cas/pkg/cmd/internal/types"
+	"github.com/codenotary/cas/pkg/cmd/login"
+	"github.com/codenotary/cas/pkg/cmd/logout"
+	"github.com/codenotary/cas/pkg/cmd/sign"
+	"github.com/codenotary/cas/pkg/cmd/verify"
+	"github.com/codenotary/cas/pkg/meta"
+	"github.com/codenotary/cas/pkg/store"
 
-	"golang.org/x/crypto/ssh/terminal"
-
-	"github.com/vchain-us/vcn/pkg/cmd/dashboard"
-	"github.com/vchain-us/vcn/pkg/cmd/info"
-	"github.com/vchain-us/vcn/pkg/cmd/inspect"
-	"github.com/vchain-us/vcn/pkg/cmd/internal/cli"
-	"github.com/vchain-us/vcn/pkg/cmd/internal/types"
-	"github.com/vchain-us/vcn/pkg/cmd/list"
-	"github.com/vchain-us/vcn/pkg/cmd/login"
-	"github.com/vchain-us/vcn/pkg/cmd/logout"
-	"github.com/vchain-us/vcn/pkg/cmd/serve"
-	"github.com/vchain-us/vcn/pkg/cmd/set"
-	"github.com/vchain-us/vcn/pkg/cmd/sign"
-	"github.com/vchain-us/vcn/pkg/cmd/verify"
-	"github.com/vchain-us/vcn/pkg/meta"
-	"github.com/vchain-us/vcn/pkg/store"
-
-	"github.com/inconshreveable/mousetrap"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -42,9 +32,8 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:     "vcn",
+	Use:     meta.CasPrefix,
 	Version: meta.Version(),
-	Short:   "vChain CodeNotary - Notarize and authenticate, from code to production",
 	Long:    ``,
 }
 
@@ -68,14 +57,8 @@ func Execute() {
 			cli.PrintError(output, types.NewError(err))
 		}
 	}
-	// disable version check on lc context
-	var versionCheck = false
-	if store.Config() != nil && store.Config().CurrentContext.Email != "" {
-		versionCheck = true
-	}
-	preExitHook(rootCmd, versionCheck)
 
-	exitCode := meta.VcnDefaultExitCode
+	exitCode := meta.CasDefaultExitCode
 	if viper.IsSet("exit-code") {
 		exitCode = viper.GetInt("exit-code")
 	}
@@ -85,11 +68,11 @@ func Execute() {
 func init() {
 
 	// Read in environment variables that match
-	viper.SetEnvPrefix(strings.ToUpper(meta.VcnPrefix))
+	viper.SetEnvPrefix(strings.ToUpper(meta.CasPrefix))
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	viper.AutomaticEnv()
 
-	// Set config files directory based on os.TempDir method ( Linux: /temp/.vcn, Windows: c:\temp, c:\windows\temp )
+	// Set config files directory based on os.TempDir method ( Linux: /temp/.cas, Windows: c:\temp, c:\windows\temp )
 	if err := store.SetDefaultDir(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -103,22 +86,20 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "vcnpath", "", "config files (default is /tmp/.vcn/config.json on linux, c:\\temp\\config.json or c:\\windows\\temp\\config.json on Windows)")
-	rootCmd.PersistentFlags().StringP("output", "o", "", "output format, one of: --output=json|--output=yaml|--output=''. In CodeNotary Immutable Ledger authenticate command is possible to specify also --output=attachments. It permits to download all items attached to an artifact.")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "caspath", "", "config files (default is /tmp/.cas/config.json on linux, c:\\temp\\config.json or c:\\windows\\temp\\config.json on Windows)")
+	rootCmd.PersistentFlags().StringP("output", "o", "", "output format, one of: --output=json|--output=''")
 	rootCmd.PersistentFlags().BoolP("silent", "S", false, "silent mode, don't show progress spinner, but it will still output the result")
 	rootCmd.PersistentFlags().BoolP("quit", "q", true, "if false, ask for confirmation before quitting")
 	rootCmd.PersistentFlags().Bool("verbose", false, "if true, print additional information")
-	//rootCmd.PersistentFlags().String("vcnpath", "", "if false, ask for confirmation before quitting")
 
 	rootCmd.PersistentFlags().MarkHidden("quit")
 
 	// Root command flags
-	rootCmd.Flags().BoolP("version", "v", false, "version for vcn") // needed for -v shorthand
+	rootCmd.Flags().BoolP("version", "v", false, "version for cas") // needed for -v shorthand
 
 	// Verification group
 	rootCmd.AddCommand(verify.NewCommand())
 	rootCmd.AddCommand(inspect.NewCommand())
-	rootCmd.AddCommand(list.NewCommand())
 
 	// Signing group
 	rootCmd.AddCommand(sign.NewCommand())
@@ -128,28 +109,7 @@ func init() {
 	// User group
 	rootCmd.AddCommand(login.NewCommand())
 	rootCmd.AddCommand(logout.NewCommand())
-	rootCmd.AddCommand(dashboard.NewCommand())
-	rootCmd.AddCommand(info.NewCommand())
 
-	// Set command
-	rootCmd.AddCommand(set.NewCommand())
-
-	// Serve command
-	rootCmd.AddCommand(serve.NewCommand())
-
-	// Alert comand
-	rootCmd.AddCommand(alert.NewCommand())
-
-}
-
-func preExitHook(cmd *cobra.Command, versionCheck bool) {
-	if output, _ := rootCmd.PersistentFlags().GetString("output"); output == "" && versionCheck {
-		cli.CheckVersion()
-	}
-
-	if quit, _ := cmd.PersistentFlags().GetBool("quit"); !quit || mousetrap.StartedByExplorer() {
-		fmt.Println()
-		fmt.Println("Press 'Enter' to continue...")
-		terminal.ReadPassword(int(syscall.Stdin))
-	}
+	// BoM
+	rootCmd.AddCommand(bom.NewCommand())
 }

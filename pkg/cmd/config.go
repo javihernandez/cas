@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
- * This software is released under GPL3.
+ * Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+ * This software is released under Apache License 2.0.
  * The full license information can be found under:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  */
 
@@ -10,16 +10,15 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/vchain-us/vcn/pkg/extractor/wildcard"
 	"os"
 
-	"github.com/vchain-us/vcn/pkg/extractor"
-	"github.com/vchain-us/vcn/pkg/extractor/dir"
-	"github.com/vchain-us/vcn/pkg/extractor/docker"
-	"github.com/vchain-us/vcn/pkg/extractor/file"
-	"github.com/vchain-us/vcn/pkg/extractor/git"
+	"github.com/codenotary/cas/pkg/extractor"
+	"github.com/codenotary/cas/pkg/extractor/docker"
+	"github.com/codenotary/cas/pkg/extractor/file"
+	"github.com/codenotary/cas/pkg/extractor/git"
+	"github.com/codenotary/cas/pkg/extractor/wildcard"
 
-	"github.com/vchain-us/vcn/pkg/store"
+	"github.com/codenotary/cas/pkg/store"
 )
 
 // initConfig reads in config file and ENV variables if set.
@@ -28,7 +27,6 @@ func initConfig() {
 	// Register metadata extractors
 	extractor.Register("", wildcard.Artifact)
 	extractor.Register(file.Scheme, file.Artifact)
-	extractor.Register(dir.Scheme, dir.Artifact)
 	extractor.Register(docker.Scheme, docker.Artifact)
 	extractor.Register(docker.SchemePodman, docker.Artifact)
 	extractor.Register(git.Scheme, git.Artifact)

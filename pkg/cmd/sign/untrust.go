@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
- * This software is released under GPL3.
+ * Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+ * This software is released under Apache License 2.0.
  * The full license information can be found under:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  */
 
 package sign
 
 import (
+	"github.com/codenotary/cas/pkg/meta"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/vchain-us/vcn/pkg/meta"
 )
 
-// NewUntrustCommand returns the cobra command for `vcn untrust`
+// NewUntrustCommand returns the cobra command for `cas untrust`
 func NewUntrustCommand() *cobra.Command {
 	cmd := makeCommand()
 	cmd.Use = "untrust"
@@ -33,9 +33,9 @@ Untrust command calculates the SHA-256 hash of a digital asset
 (file, directory, container's image).
 The hash (not the asset) and the desired status of UNTRUSTED are then
 cryptographically signed by the signer's secret (private key).
-Next, these signed objects are sent to the blockchain where the signer’s
+Next, these signed objects are sent to the Community Attestation Service where the signer’s
 trust level and a timestamp are added.
-When complete, a new blockchain entry is created that binds the asset’s
+When complete, a new Community Attestation Service entry is created that binds the asset’s
 signed hash, signed status, level, and timestamp together.
 
 Note that your assets will not be uploaded. They will be processed locally.
@@ -43,5 +43,6 @@ Note that your assets will not be uploaded. They will be processed locally.
 Assets are referenced by passed ARG(s) with untrust command only accepting
 1 ARG at a time.
 ` + helpMsgFooter
+
 	return cmd
 }

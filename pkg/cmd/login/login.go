@@ -1,71 +1,53 @@
 /*
- * Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
- * This software is released under GPL3.
+ * Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+ * This software is released under Apache License 2.0.
  * The full license information can be found under:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  */
 
 package login
 
 import (
-	"errors"
 	"fmt"
 
+	"github.com/codenotary/cas/pkg/api"
+	"github.com/codenotary/cas/pkg/signature"
 	"github.com/fatih/color"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/spf13/cobra"
-
-	"github.com/vchain-us/vcn/pkg/api"
-	"github.com/vchain-us/vcn/pkg/cmd/internal/cli"
-	"github.com/vchain-us/vcn/pkg/meta"
-	"github.com/vchain-us/vcn/pkg/store"
+	"github.com/codenotary/cas/pkg/meta"
 )
 
-// NewCommand returns the cobra command for `vcn login`
+// NewCommand returns the cobra command for `cas login`
 func NewCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			if err := viper.BindPFlags(cmd.Flags()); err != nil {
 				return err
 			}
-			// set port for set up a connection to a CodeNotary Ledger Compliance server (default 443). If --lc-no-tls is provided default port will be 80
-			lcPort := viper.GetString("lc-port")
-			noTls := viper.GetBool("lc-no-tls")
-			if noTls && lcPort == "" {
-				viper.Set("lc-port", "80")
-			}
-			if noTls == false && lcPort == "" {
-				viper.Set("lc-port", "443")
-			}
 			return nil
 		},
 		Use:   "login",
-		Short: "Log in to CodeNotary.io or CodeNotary Ledger Compliance",
-		Long: `Log in to CodeNotary.io or CodeNotary Ledger Compliance.
+		Short: "Log in to Community Attestation Service",
+		Long: `Log in to Community Attestation Service.
 
 Environment variables:
-VCN_USER=
-VCN_PASSWORD=
-VCN_NOTARIZATION_PASSWORD=
-VCN_NOTARIZATION_PASSWORD_EMPTY=
-VCN_OTP=
-VCN_OTP_EMPTY=
-VCN_LC_HOST=
-VCN_LC_PORT=
-VCN_LC_CERT=
-VCN_LC_SKIP_TLS_VERIFY=false
-VCN_LC_NO_TLS=false
-VCN_LC_API_KEY=
-VCN_LC_LEDGER=
+CAS_HOST=
+CAS_PORT=
+CAS_CERT=
+CAS_SKIP_TLS_VERIFY=false
+CAS_NO_TLS=false
+CAS_API_KEY=
+CAS_LEDGER=
 `,
 		Example: `  # Codenotary.io login:
-  ./vcn login
-  # CodeNotary Ledger Compliance login:
-  ./vcn login --lc-port 33443 --lc-host lc.vchain.us --lc-cert lc.vchain.us
-  ./vcn login --lc-port 3324 --lc-host 127.0.0.1 --lc-no-tls
-  ./vcn login --lc-port 443 --lc-host lc.vchain.us --lc-cert lc.vchain.us --lc-skip-tls-verify`,
+  ./cas login
+  # On-premise service login:
+  ./cas login --port 33443 --host lc.vchain.us --cert mycert.pem
+  ./cas login --port 3324 --host 127.0.0.1 --no-tls
+  ./cas login --port 443 --host lc.vchain.us --skip-tls-verify`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 			output, err := cmd.Flags().GetString("output")
@@ -73,90 +55,49 @@ VCN_LC_LEDGER=
 				return err
 			}
 
-			lcHost := viper.GetString("lc-host")
-			lcPort := viper.GetString("lc-port")
-			lcCert := viper.GetString("lc-cert")
-			skipTlsVerify := viper.GetBool("lc-skip-tls-verify")
-			noTls := viper.GetBool("lc-no-tls")
-			lcApiKey := viper.GetString("lc-api-key")
-			lcLedger := viper.GetString("lc-ledger")
-
-			if lcHost != "" {
-				err = ExecuteLC(lcHost, lcPort, lcCert, lcApiKey, lcLedger, skipTlsVerify, noTls)
-				if err != nil {
-					return err
-				}
-				if output == "" {
-					color.Set(meta.StyleSuccess())
-					fmt.Println("Login successful.")
-					color.Unset()
-				}
-				return nil
+			lcHost := api.DefaultHost
+			if len(args) > 0 {
+				lcHost = args[0]
+			} else if viper.IsSet("host") {
+				lcHost = viper.GetString("host")
 			}
 
-			if err := Execute(); err != nil {
+			lcPort := viper.GetString("port")
+			lcCert := viper.GetString("cert")
+			lcApiKey := viper.GetString("api-key")
+			lcLedger := viper.GetString("ledger")
+
+			signingPubKey, skipLocalPubKeyComp, err := signature.PrepareSignatureParams(
+				viper.GetString("signing-pub-key"),
+				viper.GetString("signing-pub-key-file"))
+			if err != nil {
+				return err
+			}
+			enforceSignatureVerify := viper.GetBool("enforce-signature-verify")
+
+			err = ExecuteLC(lcHost, lcPort, lcCert, lcApiKey, lcLedger, viper.IsSet("skip-tls-verify"), viper.GetBool("skip-tls-verify"), viper.IsSet("no-tls"), viper.GetBool("no-tls"), signingPubKey, skipLocalPubKeyComp, enforceSignatureVerify)
+			if err != nil {
 				return err
 			}
 			if output == "" {
+				color.Set(meta.StyleSuccess())
 				fmt.Println("Login successful.")
+				color.Unset()
 			}
 			return nil
 		},
 		Args: cobra.MaximumNArgs(2),
 	}
-	cmd.Flags().String("lc-host", "", meta.VcnLcHostFlagDesc)
-	cmd.Flags().String("lc-port", "", meta.VcnLcPortFlagDesc)
-	cmd.Flags().String("lc-cert", "", meta.VcnLcCertPathDesc)
-	cmd.Flags().Bool("lc-skip-tls-verify", false, meta.VcnLcSkipTlsVerifyDesc)
-	cmd.Flags().Bool("lc-no-tls", false, meta.VcnLcNoTlsDesc)
-	cmd.Flags().String("lc-api-key", "", meta.VcnLcApiKeyDesc)
-	cmd.Flags().String("lc-ledger", "", meta.VcnLcLedgerDesc)
+	cmd.Flags().String("host", "", meta.CasHostFlagDesc)
+	cmd.Flags().String("port", "", meta.CasPortFlagDesc)
+	cmd.Flags().String("cert", "", meta.CasCertPathDesc)
+	cmd.Flags().Bool("skip-tls-verify", false, meta.CasSkipTlsVerifyDesc)
+	cmd.Flags().Bool("no-tls", false, meta.CasNoTlsDesc)
+	cmd.Flags().String("api-key", "", meta.CasApiKeyDesc)
+	cmd.Flags().String("ledger", "", meta.CasLedgerDesc)
+	cmd.Flags().String("signing-pub-key-file", "", meta.CasSigningPubKeyFileNameDesc)
+	cmd.Flags().String("signing-pub-key", "", meta.CasSigningPubKeyDesc)
+	cmd.Flags().Bool("enforce-signature-verify", false, meta.CasEnforceSignatureVerifyDesc)
 
 	return cmd
-}
-
-// Execute the login action
-func Execute() error {
-
-	if store.CNLCContext() == true {
-		return errors.New("Already logged on CodeNotary Ledger Compliance. Please logout first.")
-	}
-
-	color.Set(meta.StyleAffordance())
-	fmt.Println("Logging into CodeNotary.io.")
-	color.Unset()
-
-	cfg := store.Config()
-
-	email, err := cli.ProvidePlatformUsername()
-	if err != nil {
-		return err
-	}
-
-	user := api.NewUser(email)
-
-	password, err := cli.ProvidePlatformPassword()
-	if err != nil {
-		return err
-	}
-
-	otp, err := cli.ProvideOtp()
-	if err != nil {
-		return err
-	}
-
-	cfg.ClearContext()
-	if err := user.Authenticate(password, otp); err != nil {
-		return err
-	}
-	cfg.CurrentContext.Email = user.Email()
-
-	// Store the new config
-	if err := store.SaveConfig(); err != nil {
-		return err
-	}
-
-	api.TrackPublisher(user, meta.VcnLoginEvent)
-
-	return nil
 }

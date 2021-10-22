@@ -1,31 +1,29 @@
 /*
- * Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
- * This software is released under GPL3.
+ * Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+ * This software is released under Apache License 2.0.
  * The full license information can be found under:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  */
 
 package api
 
 import (
-	"github.com/vchain-us/vcn/pkg/meta"
+	"github.com/codenotary/cas/pkg/meta"
+	"github.com/vchain-us/ledger-compliance-go/schema"
 )
 
 // SignOption is a functional option for signing operations
 type LcSignOption func(*lcSignOpts) error
 
 type lcSignOpts struct {
-	status     meta.Status
-	visibility meta.Visibility
-	attach     []string
+	status meta.Status
+	bom    []*schema.VCNDependency
 }
 
 func makeLcSignOpts(opts ...LcSignOption) (o *lcSignOpts, err error) {
 	o = &lcSignOpts{
-		status:     meta.StatusTrusted,
-		visibility: meta.VisibilityPrivate,
-		attach:     nil,
+		status: meta.StatusTrusted,
 	}
 
 	for _, option := range opts {
@@ -48,18 +46,9 @@ func LcSignWithStatus(status meta.Status) LcSignOption {
 	}
 }
 
-// SignWithVisibility returns the functional option for the given visibility.
-func LcSignWithVisibility(visibility meta.Visibility) LcSignOption {
+func LcSignWithBom(bom []*schema.VCNDependency) LcSignOption {
 	return func(o *lcSignOpts) error {
-		o.visibility = visibility
-		return nil
-	}
-}
-
-// LcSignWithAttachments returns the functional option for the given status.
-func LcSignWithAttachments(attach []string) LcSignOption {
-	return func(o *lcSignOpts) error {
-		o.attach = attach
+		o.bom = bom
 		return nil
 	}
 }

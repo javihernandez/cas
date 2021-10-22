@@ -2,33 +2,24 @@ package verify
 
 import (
 	"fmt"
+	"strconv"
+
+	"github.com/codenotary/cas/pkg/api"
+	"github.com/codenotary/cas/pkg/cmd/internal/cli"
+	"github.com/codenotary/cas/pkg/cmd/internal/types"
+	"github.com/codenotary/cas/pkg/meta"
 	"github.com/fatih/color"
-	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/vchain-us/vcn/pkg/api"
-	"github.com/vchain-us/vcn/pkg/cmd/internal/cli"
-	"github.com/vchain-us/vcn/pkg/cmd/internal/types"
-	"github.com/vchain-us/vcn/pkg/meta"
-	"strconv"
 )
 
-func lcVerify(cmd *cobra.Command, a *api.Artifact, user *api.LcUser, signerID string, uid string, attach string, lcAttachForce bool, verbose bool, output string) (err error) {
-	hook := newHook(cmd, a)
-	err = hook.lcFinalizeWithoutAlert(user, output, 0)
-	if err != nil {
-		return err
-	}
-	var attachmentList []api.Attachment
-
-	if attach != "" {
-		attachmentList, uid, err = user.GetArtifactAttachmentListByLabel(a.Hash, signerID, attach)
-		if err != nil {
-			return err
-		}
-	}
-
-	ar, verified, err := user.LoadArtifact(a.Hash, signerID, uid, 0)
+func lcVerify(cmd *cobra.Command, a *api.Artifact, user *api.LcUser, signerID string, uid string, verbose bool, output string) (err error) {
+	ar, verified, err := user.LoadArtifact(
+		a.Hash,
+		signerID,
+		uid,
+		0,
+		map[string][]string{meta.CasCmdHeaderName: {meta.CasVerifyCmdHeaderValue}})
 	if err != nil {
 		if err == api.ErrNotFound {
 			err = fmt.Errorf("%s was not notarized", a.Hash)
@@ -36,7 +27,7 @@ func lcVerify(cmd *cobra.Command, a *api.Artifact, user *api.LcUser, signerID st
 		}
 		if err == api.ErrNotVerified {
 			color.Set(meta.StyleError())
-			fmt.Println("the ledger is compromised. Please contact the CodeNotary Immutable Ledger administrators")
+			fmt.Println("the ledger is compromised. Please contact the Community Attestation Service administrators")
 			color.Unset()
 			fmt.Println()
 			viper.Set("exit-code", strconv.Itoa(meta.StatusUnknown.Int()))
@@ -48,31 +39,12 @@ func lcVerify(cmd *cobra.Command, a *api.Artifact, user *api.LcUser, signerID st
 		ar.Status = meta.StatusApikeyRevoked
 	}
 
-	if len(attachmentList) == 0 && ar.Attachments != nil {
-		attachmentList = ar.Attachments
-	}
+	ar.IncludedIn = a.IncludedIn
+	ar.Deps = a.Deps
 
-	if output == "attachments" {
-		cli.PrintAttachmentList(attach, attachmentList)
-
-		var bar *progressbar.ProgressBar
-		lenAttachments := len(attachmentList)
-		if lenAttachments >= 1 {
-			bar = progressbar.Default(int64(lenAttachments))
-		}
-
-		for _, a := range attachmentList {
-			_ = bar.Add(1)
-			err := user.DownloadAttachment(&a, ar, 0, lcAttachForce)
-			if err != nil {
-				return err
-			}
-		}
-		fmt.Println()
-	}
 	if !verified {
 		color.Set(meta.StyleError())
-		fmt.Println("the ledger is compromised. Please contact the CodeNotary Immutable Ledger administrators")
+		fmt.Println("the ledger is compromised. Please contact the Community Attestation Service administrators")
 		color.Unset()
 		fmt.Println()
 		viper.Set("exit-code", strconv.Itoa(meta.StatusUnknown.Int()))
@@ -83,10 +55,10 @@ func lcVerify(cmd *cobra.Command, a *api.Artifact, user *api.LcUser, signerID st
 	if err != nil {
 		return err
 	}
-	// if exitCode == VcnDefaultExitCode user didn't specify to use a custom exit code in case of success.
+	// if exitCode == CasDefaultExitCode user didn't specify to use a custom exit code in case of success.
 	// In that case we return the ar.Status as exit code.
 	// User defined exit code is returned only if the viper exit-code status is == 0 (status trusted)
-	if exitCode == meta.VcnDefaultExitCode && viper.GetInt("exit-code") == 0 {
+	if exitCode == meta.CasDefaultExitCode && viper.GetInt("exit-code") == 0 {
 		viper.Set("exit-code", strconv.Itoa(ar.Status.Int()))
 	}
 	var verbInfos *types.LcVerboseInfo

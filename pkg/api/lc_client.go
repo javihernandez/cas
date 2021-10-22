@@ -1,14 +1,15 @@
 /*
- * Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
- * This software is released under GPL3.
+ * Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+ * This software is released under Apache License 2.0.
  * The full license information can be found under:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  */
 
 package api
 
 import (
+	"crypto/ecdsa"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
@@ -17,21 +18,21 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/codenotary/cas/pkg/meta"
+	"github.com/codenotary/cas/pkg/store"
 	sdk "github.com/vchain-us/ledger-compliance-go/grpcclient"
-	"github.com/vchain-us/vcn/pkg/meta"
-	"github.com/vchain-us/vcn/pkg/store"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
 )
 
-func NewLcClientByContext(context store.CurrentContext, lcApiKey string, lcLedger string) (*sdk.LcClient, error) {
-	return NewLcClient(lcApiKey, lcLedger, context.LcHost, context.LcPort, context.LcCert, context.LcSkipTlsVerify, context.LcNoTls)
+func NewLcClientByContext(context store.CurrentContext, lcApiKey string, lcLedger string, signingPubKey *ecdsa.PublicKey) (*sdk.LcClient, error) {
+	return NewLcClient(lcApiKey, lcLedger, context.LcHost, context.LcPort, context.LcCert, context.LcSkipTlsVerify, context.LcNoTls, signingPubKey)
 }
 
-func NewLcClient(lcApiKey, lcLedger, host, port, lcCertPath string, skipTlsVerify, noTls bool) (*sdk.LcClient, error) {
+func NewLcClient(lcApiKey, lcLedger, host, port, lcCertPath string, skipTlsVerify, noTls bool, signingPubKey *ecdsa.PublicKey) (*sdk.LcClient, error) {
 	if skipTlsVerify && noTls {
-		return nil, errors.New("illegal parameters submitted: lc-skip-tls-verify and lc-no-tls arguments are both provided")
+		return nil, errors.New("illegal parameters submitted: skip-tls-verify and no-tls arguments are both provided")
 	}
 
 	p, err := strconv.Atoi(port)
@@ -71,13 +72,14 @@ func NewLcClient(lcApiKey, lcLedger, host, port, lcCertPath string, skipTlsVerif
 	return sdk.NewLcClient(
 		sdk.ApiKey(lcApiKey),
 		sdk.MetadataPairs([]string{
-			meta.VcnLCLedgerHeaderName, lcLedger,
-			meta.VcnLCVersionHeaderName, meta.Version(),
+			meta.CasLedgerHeaderName, lcLedger,
+			meta.CasVersionHeaderName, meta.Version(),
 		}),
 		sdk.Host(host),
 		sdk.Port(p),
 		sdk.Dir(store.CurrentConfigFilePath()),
 		sdk.DialOptions(currentOptions),
+		sdk.ServerSigningPubKey(signingPubKey),
 	), nil
 }
 

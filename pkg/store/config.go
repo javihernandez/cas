@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
- * This software is released under GPL3.
+ * Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+ * This software is released under Apache License 2.0.
  * The full license information can be found under:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  */
 
@@ -23,7 +23,6 @@ const (
 
 // User holds user's configuration.
 type User struct {
-	Email    string `json:"email,omitempty"`
 	Token    string `json:"token,omitempty"`
 	KeyStore string `json:"keystore,omitempty"`
 	LcCert   string `json:"lcCert,omitempty"`
@@ -37,7 +36,6 @@ type ConfigRoot struct {
 }
 
 type CurrentContext struct {
-	Email           string `json:"email,omitempty"`
 	LcHost          string `json:"LcHost,omitempty"`
 	LcPort          string `json:"LcPort,omitempty"`
 	LcCert          string `json:"LcCert,omitempty"`
@@ -46,7 +44,6 @@ type CurrentContext struct {
 }
 
 func (cc *CurrentContext) Clear() {
-	cc.Email = ""
 	cc.LcHost = ""
 	cc.LcPort = ""
 	cc.LcCert = ""
@@ -109,7 +106,6 @@ func LoadConfig() error {
 		}
 		fmt.Println("Upgrading config to new format. Old sessions will expire")
 		c.Users = []*User{}
-		c.CurrentContext.Email = oldFormat.CurrentContext
 		c.SchemaVersion = 3
 	}
 
@@ -135,33 +131,6 @@ func SaveConfig() error {
 
 // User returns an User from the global config matching the given email.
 // User returns nil when an empty email is given or c is nil.
-func (c *ConfigRoot) UserByMail(email string) *User {
-	defer func() {
-		if cfg != nil {
-			cfg.CurrentContext.Clear()
-			cfg.CurrentContext.Email = email
-		}
-	}()
-	if c == nil || email == "" {
-		return nil
-	}
-
-	for _, u := range c.Users {
-		if u.Email == email {
-			return u
-		}
-	}
-
-	u := User{
-		Email: email,
-	}
-
-	c.Users = append(c.Users, &u)
-	return &u
-}
-
-// User returns an User from the global config matching the given email.
-// User returns nil when an empty email is given or c is nil.
 func (c *ConfigRoot) NewLcUser(host, port, lcCert string, lcSkipTlsVerify, lcNoTls bool) (u *CurrentContext) {
 	defer func() {
 		cfg.CurrentContext.Clear()
@@ -175,21 +144,6 @@ func (c *ConfigRoot) NewLcUser(host, port, lcCert string, lcSkipTlsVerify, lcNoT
 	return u
 }
 
-// RemoveUser removes an user from config matching the given email, if not found return false
-func (c *ConfigRoot) RemoveUserByMail(email string) bool {
-	if c == nil {
-		return false
-	}
-
-	for i, u := range c.Users {
-		if u.Email == email {
-			c.Users = append(c.Users[:i], c.Users[i+1:]...)
-			return true
-		}
-	}
-	return false
-}
-
 // ClearContext clean up all auth token for all users and set an empty context.
 func (c *ConfigRoot) ClearContext() {
 	if c == nil {
@@ -199,14 +153,4 @@ func (c *ConfigRoot) ClearContext() {
 		u.Token = ""
 	}
 	c.CurrentContext = CurrentContext{}
-}
-
-func CNLCContext() bool {
-	cfg := Config()
-	return cfg.CurrentContext.LcHost != ""
-}
-
-func CNioContext() bool {
-	cfg := Config()
-	return cfg.CurrentContext.Email != ""
 }

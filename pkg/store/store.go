@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
- * This software is released under GPL3.
+ * Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+ * This software is released under Apache License 2.0.
  * The full license information can be found under:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  */
 
@@ -19,12 +19,8 @@ const FilePerm os.FileMode = 0600
 const DirPerm os.FileMode = 0700
 
 // DefaultDirName is the name of the store working directory.
-const DefaultDirName = ".vcn"
+const DefaultDirName = ".cas"
 
 const configFilename = "config.json"
-
-const defaultSecretFile = "secret.json"
-
-const defaultAlertsDir = "alerts"
 
 const defaultManifestsDir = "manifests"

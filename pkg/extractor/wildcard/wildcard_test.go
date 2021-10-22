@@ -1,19 +1,21 @@
 package wildcard
 
 import (
-	file2 "github.com/vchain-us/vcn/pkg/extractor/file"
 	"log"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/vchain-us/vcn/pkg/uri"
+	file2 "github.com/codenotary/cas/pkg/extractor/file"
+
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/codenotary/cas/pkg/uri"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestWildcard(t *testing.T) {
-	file, err := ioutil.TempFile("", "vcn-test-scheme-file")
+	file, err := ioutil.TempFile("", "cas-test-scheme-file")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,0 +1,24 @@
+name: Compile and run make test
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '**'
+jobs:
+  build_test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+      - name: Build
+        run: |
+          make
+      - name: Run tests
+        run: |
+          make TEST_FLAGS="-timeout 60s -coverprofile cover.out -race -v" test

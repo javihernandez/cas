@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2018-2020 vChain, Inc. All Rights Reserved.
- * This software is released under GPL3.
+ * Copyright (c) 2018-2021 Codenotary, Inc. All Rights Reserved.
+ * This software is released under Apache License 2.0.
  * The full license information can be found under:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  */
 
@@ -26,7 +26,7 @@ const (
 	ManifestSchemaVersion = 1
 
 	// ManifestFilename is the default filename for manifest when stored.
-	ManifestFilename = ".vcn.manifest.json"
+	ManifestFilename = ".cas.manifest.json"
 
 	// ManifestDigestAlgo is the only supported digest's algorithm by current manifest schema version.
 	ManifestDigestAlgo = digest.SHA256

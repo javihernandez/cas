@@ -1,11 +1,9 @@
 # CHANGELOG
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-<a name="unreleased"></a>
-## [Unreleased]
 
 
 <a name="v0.9.7"></a>
-## [v0.9.7] - 2021-06-29
+## [v0.9.7] - 2021-06-30
 ### Bug Fixes
 - attachments internal map is iterated with a side sorted string slice. Add some cleanup
 - **pkg/cmd/verify:** fix attachments download with multiple version
@@ -54,7 +52,7 @@ All notable changes to this project will be documented in this file. This projec
 - **pkg/cmd/sign:** improve attachment container structure
 
 ### Changes
-- vcn context ux improvements. closes [#134](https://github.com/vchain-us/vcn/issues/134)
+- vcn context ux improvements. closes [#134](https://github.com/codenotary/vcn-enterprise/issues/134)
 - fix missing apikey error
 - remove unused import
 - add artifact print date method
@@ -69,18 +67,18 @@ All notable changes to this project will be documented in this file. This projec
 - **pkg/cmd/sign:** add '-' char to enforce pipe mode
 
 ### Features
-- add support for ledger compliance env vars. Closes [#628](https://github.com/vchain-us/vcn/issues/628)
+- add support for ledger compliance env vars. Closes [#628](https://github.com/codenotary/vcn-enterprise/issues/628)
 - add ci-attr flag. It permits to save ci context env as metadata
 - add --lc-ledger flag for authenticate and inspect commands when used with cross-ledgers API keys
 - when apikey is revoked authenticate exits with revokedApikey status - 4
 - vcn handle new apikey format{friendlySignerID}.{secret} CNCL
 - revokation infos on signed artifact are returned
-- vcn handles multi attachment to the notarized item. closes [#133](https://github.com/vchain-us/vcn/issues/133)
+- vcn handles multi attachment to the notarized item. closes [#133](https://github.com/codenotary/vcn-enterprise/issues/133)
 - enable file upload
 - add multi files support in pipe
 - **pkg/api:** lc artifact contains uid
 - **pkg/cmd:** authenticate command can download all linked attachments
-- **pkg/cmd/sign:** notarization accepts pipe. closes [#579](https://github.com/vchain-us/vcn/issues/579)
+- **pkg/cmd/sign:** notarization accepts pipe. closes [#579](https://github.com/codenotary/vcn-enterprise/issues/579)
 - **pkg/cmd/verify:** verify accepts uid to specify an artifact in time
 
 
@@ -216,15 +214,15 @@ All notable changes to this project will be documented in this file. This projec
 - add wildcard extractor
 - add serve lc inspect
 - improve inspect result with timestamp for each element
-- add verify filter by LC signerID. fix [#104](https://github.com/vchain-us/vcn/issues/104)
-- add vcn lc login. fix [#103](https://github.com/vchain-us/vcn/issues/103)
+- add verify filter by LC signerID. fix [#104](https://github.com/codenotary/vcn-enterprise/issues/104)
+- add vcn lc login. fix [#103](https://github.com/codenotary/vcn-enterprise/issues/103)
 - partial parallel notarizations support
 - add inspect for ledger compliance
 - add otp_empty environment var
 - add lc operations for vcn server
 - add verify asset on ledger compliance
 - add ledger compliance authentication and notarization
-- Add otp support. close [#87](https://github.com/vchain-us/vcn/issues/87) close [#88](https://github.com/vchain-us/vcn/issues/88)
+- Add otp support. close [#87](https://github.com/codenotary/vcn-enterprise/issues/87) close [#88](https://github.com/codenotary/vcn-enterprise/issues/88)
 - **pkg/cmd:** add inspect api
 - **pkg/cmd/inspect:** improve inspect in lc
 - **pkg/cmd/verify:** manage verify by hash in lc mode
@@ -312,7 +310,7 @@ All notable changes to this project will be documented in this file. This projec
 <a name="v0.7.3"></a>
 ## [v0.7.3] - 2019-10-30
 ### Bug Fixes
-- **cmd:** enforce lowercase hash string (fixes [#67](https://github.com/vchain-us/vcn/issues/67))
+- **cmd:** enforce lowercase hash string (fixes [#67](https://github.com/codenotary/vcn-enterprise/issues/67))
 - **cmd/inspect:** enforce lowercase hash string
 - **cmd/serve:** enforce lowercase hash string
 - **cmd/sign:** try again when notarization password is wrong
@@ -339,9 +337,9 @@ All notable changes to this project will be documented in this file. This projec
 <a name="v0.7.1"></a>
 ## [v0.7.1] - 2019-10-08
 ### Bug Fixes
-- added ability to do not write on read only dir (fixes [#45](https://github.com/vchain-us/vcn/issues/45))
+- added ability to do not write on read only dir (fixes [#45](https://github.com/codenotary/vcn-enterprise/issues/45))
 - **cmd:** typo and language improvement
-- **cmd/serve:** CORS preflight (fixes [#60](https://github.com/vchain-us/vcn/issues/60))
+- **cmd/serve:** CORS preflight (fixes [#60](https://github.com/codenotary/vcn-enterprise/issues/60))
 
 
 <a name="v0.7.0"></a>
@@ -359,19 +357,19 @@ All notable changes to this project will be documented in this file. This projec
 - update messages
 - update dependencies
 - platform managed secret is not stored locally anymore
-- remove onboarding message (closes [#52](https://github.com/vchain-us/vcn/issues/52))
+- remove onboarding message (closes [#52](https://github.com/codenotary/vcn-enterprise/issues/52))
 - use go v1.13 for the building system
 - promote artifact fields to root
 - move tracking call outside api pkg
 - **api:** removed `BlockchainVerification.LevelName()` method
 - **api:** add `BlockchainVerification.UnmarshalYAML`
 - **api:** omit empy field in `ArtifactResponse`
-- **cmd:** gracefully print error message if artifact is nil (fixes [#57](https://github.com/vchain-us/vcn/issues/57))
+- **cmd:** gracefully print error message if artifact is nil (fixes [#57](https://github.com/codenotary/vcn-enterprise/issues/57))
 - **cmd:** added ability to use empty notarization password
 - **cmd/info:** improved message for expired tokens
-- **cmd/serve:** notarization API will allow only registered schemes for the kind field (closes [#51](https://github.com/vchain-us/vcn/issues/51))
+- **cmd/serve:** notarization API will allow only registered schemes for the kind field (closes [#51](https://github.com/codenotary/vcn-enterprise/issues/51))
 - **extractor:** do not store version in metadata when empty
-- **extractor/dir:** do not create `.vcnignore` on directory authentication (refs [#45](https://github.com/vchain-us/vcn/issues/45))
+- **extractor/dir:** do not create `.vcnignore` on directory authentication (refs [#45](https://github.com/codenotary/vcn-enterprise/issues/45))
 - **meta:** use Stringer interface for stage environment
 - **meta:** use Stringer interface for status, level, and visibility
 
@@ -388,8 +386,8 @@ All notable changes to this project will be documented in this file. This projec
 - **cmd:** improved help messages
 - **cmd:** added `vcn info` command
 - **cmd:** add `vcn serve` command
-- **cmd:** added command for setting a custom notarization password (closes [#53](https://github.com/vchain-us/vcn/issues/53))
-- **cmd/serve:** TLS support (closes [#48](https://github.com/vchain-us/vcn/issues/48))
+- **cmd:** added command for setting a custom notarization password (closes [#53](https://github.com/codenotary/vcn-enterprise/issues/53))
+- **cmd/serve:** TLS support (closes [#48](https://github.com/codenotary/vcn-enterprise/issues/48))
 - **cmd/serve:** print environment info at startup
 - **cmd/serve:** allow to pass credentials via HTTP
 - **extractor:** add functional options
@@ -417,7 +415,7 @@ Secret storage is not used anymore for platform managed secrets.
 <a name="v0.6.3"></a>
 ## [v0.6.3] - 2019-09-25
 ### Bug Fixes
-- **extractor/dir:** runtime error when passing a regular file instead of a directory (fixes [#56](https://github.com/vchain-us/vcn/issues/56))
+- **extractor/dir:** runtime error when passing a regular file instead of a directory (fixes [#56](https://github.com/codenotary/vcn-enterprise/issues/56))
 
 
 <a name="v0.6.2"></a>
@@ -432,7 +430,7 @@ Secret storage is not used anymore for platform managed secrets.
 <a name="v0.6.1"></a>
 ## [v0.6.1] - 2019-09-10
 ### Bug Fixes
-- correct error msg when entering empty email (fixes [#43](https://github.com/vchain-us/vcn/issues/43))
+- correct error msg when entering empty email (fixes [#43](https://github.com/codenotary/vcn-enterprise/issues/43))
 
 ### Features
 - enable git repo notarization and authentication
@@ -514,7 +512,7 @@ support for multiple keystores in config file and related APIs within the `store
 - update go.sum for xgo
 - **bundle:** use uint64 for size
 - **dir:** OS agnostic paths
-- **list:** show all assets with pagination (fixes [#28](https://github.com/vchain-us/vcn/issues/28))
+- **list:** show all assets with pagination (fixes [#28](https://github.com/codenotary/vcn-enterprise/issues/28))
 
 ### Changes
 - **api:** add Artifact.Copy()
@@ -798,44 +796,47 @@ this commit introduce the config file with multi-keys support, and a huge refact
 <a name="v.0.1-beta.2"></a>
 ## v.0.1-beta.2 - 2019-02-19
 
-[Unreleased]: https://github.com/vchain-us/vcn/compare/v0.9.7...HEAD
-[v0.9.7]: https://github.com/vchain-us/vcn/compare/v0.9.6...v0.9.7
-[v0.9.6]: https://github.com/vchain-us/vcn/compare/v0.9.5...v0.9.6
-[v0.9.5]: https://github.com/vchain-us/vcn/compare/v0.9.4...v0.9.5
-[v0.9.4]: https://github.com/vchain-us/vcn/compare/v0.9.3...v0.9.4
-[v0.9.3]: https://github.com/vchain-us/vcn/compare/v0.9.2...v0.9.3
-[v0.9.2]: https://github.com/vchain-us/vcn/compare/v0.9.1...v0.9.2
-[v0.9.1]: https://github.com/vchain-us/vcn/compare/v0.9.0...v0.9.1
-[v0.9.0]: https://github.com/vchain-us/vcn/compare/v0.8.3...v0.9.0
-[v0.8.3]: https://github.com/vchain-us/vcn/compare/v0.8.2...v0.8.3
-[v0.8.2]: https://github.com/vchain-us/vcn/compare/v0.8.1...v0.8.2
-[v0.8.1]: https://github.com/vchain-us/vcn/compare/v0.8.0...v0.8.1
-[v0.8.0]: https://github.com/vchain-us/vcn/compare/v0.7.4...v0.8.0
-[v0.7.4]: https://github.com/vchain-us/vcn/compare/v0.7.3...v0.7.4
-[v0.7.3]: https://github.com/vchain-us/vcn/compare/v0.7.2...v0.7.3
-[v0.7.2]: https://github.com/vchain-us/vcn/compare/v0.7.1...v0.7.2
-[v0.7.1]: https://github.com/vchain-us/vcn/compare/v0.7.0...v0.7.1
-[v0.7.0]: https://github.com/vchain-us/vcn/compare/v0.6.3...v0.7.0
-[v0.6.3]: https://github.com/vchain-us/vcn/compare/v0.6.2...v0.6.3
-[v0.6.2]: https://github.com/vchain-us/vcn/compare/v0.6.1...v0.6.2
-[v0.6.1]: https://github.com/vchain-us/vcn/compare/v0.6.0...v0.6.1
-[v0.6.0]: https://github.com/vchain-us/vcn/compare/v0.5.4...v0.6.0
-[v0.5.4]: https://github.com/vchain-us/vcn/compare/v0.5.3...v0.5.4
-[v0.5.3]: https://github.com/vchain-us/vcn/compare/v0.5.2...v0.5.3
-[v0.5.2]: https://github.com/vchain-us/vcn/compare/v0.5.1...v0.5.2
-[v0.5.1]: https://github.com/vchain-us/vcn/compare/0.5.0...v0.5.1
-[0.5.0]: https://github.com/vchain-us/vcn/compare/v0.5.0...0.5.0
-[v0.5.0]: https://github.com/vchain-us/vcn/compare/0.4.3...v0.5.0
-[0.4.3]: https://github.com/vchain-us/vcn/compare/0.4.2...0.4.3
-[0.4.2]: https://github.com/vchain-us/vcn/compare/0.4.1...0.4.2
-[0.4.1]: https://github.com/vchain-us/vcn/compare/0.4.0...0.4.1
-[0.4.0]: https://github.com/vchain-us/vcn/compare/0.3.6...0.4.0
-[0.3.6]: https://github.com/vchain-us/vcn/compare/0.3.5...0.3.6
-[0.3.5]: https://github.com/vchain-us/vcn/compare/0.3.4...0.3.5
-[0.3.4]: https://github.com/vchain-us/vcn/compare/0.3.3...0.3.4
-[0.3.3]: https://github.com/vchain-us/vcn/compare/0.3.2...0.3.3
-[0.3.2]: https://github.com/vchain-us/vcn/compare/0.3.1...0.3.2
-[0.3.1]: https://github.com/vchain-us/vcn/compare/0.3.0...0.3.1
-[0.3.0]: https://github.com/vchain-us/vcn/compare/0.2.2...0.3.0
-[0.2.2]: https://github.com/vchain-us/vcn/compare/v.0.2-beta.0...0.2.2
-[v.0.2-beta.0]: https://github.com/vchain-us/vcn/compare/v.0.1-beta.2...v.0.2-beta.0
+[Unreleased]: https://github.com/codenotary/vcn-enterprise/compare/v0.9.10...HEAD
+[v0.9.10]: https://github.com/codenotary/vcn-enterprise/compare/v0.9.9...v0.9.10
+[v0.9.9]: https://github.com/codenotary/vcn-enterprise/compare/v0.9.8...v0.9.9
+[v0.9.8]: https://github.com/codenotary/vcn-enterprise/compare/v0.9.7...v0.9.8
+[v0.9.7]: https://github.com/codenotary/vcn-enterprise/compare/v0.9.6...v0.9.7
+[v0.9.6]: https://github.com/codenotary/vcn-enterprise/compare/v0.9.5...v0.9.6
+[v0.9.5]: https://github.com/codenotary/vcn-enterprise/compare/v0.9.4...v0.9.5
+[v0.9.4]: https://github.com/codenotary/vcn-enterprise/compare/v0.9.3...v0.9.4
+[v0.9.3]: https://github.com/codenotary/vcn-enterprise/compare/v0.9.2...v0.9.3
+[v0.9.2]: https://github.com/codenotary/vcn-enterprise/compare/v0.9.1...v0.9.2
+[v0.9.1]: https://github.com/codenotary/vcn-enterprise/compare/v0.9.0...v0.9.1
+[v0.9.0]: https://github.com/codenotary/vcn-enterprise/compare/v0.8.3...v0.9.0
+[v0.8.3]: https://github.com/codenotary/vcn-enterprise/compare/v0.8.2...v0.8.3
+[v0.8.2]: https://github.com/codenotary/vcn-enterprise/compare/v0.8.1...v0.8.2
+[v0.8.1]: https://github.com/codenotary/vcn-enterprise/compare/v0.8.0...v0.8.1
+[v0.8.0]: https://github.com/codenotary/vcn-enterprise/compare/v0.7.4...v0.8.0
+[v0.7.4]: https://github.com/codenotary/vcn-enterprise/compare/v0.7.3...v0.7.4
+[v0.7.3]: https://github.com/codenotary/vcn-enterprise/compare/v0.7.2...v0.7.3
+[v0.7.2]: https://github.com/codenotary/vcn-enterprise/compare/v0.7.1...v0.7.2
+[v0.7.1]: https://github.com/codenotary/vcn-enterprise/compare/v0.7.0...v0.7.1
+[v0.7.0]: https://github.com/codenotary/vcn-enterprise/compare/v0.6.3...v0.7.0
+[v0.6.3]: https://github.com/codenotary/vcn-enterprise/compare/v0.6.2...v0.6.3
+[v0.6.2]: https://github.com/codenotary/vcn-enterprise/compare/v0.6.1...v0.6.2
+[v0.6.1]: https://github.com/codenotary/vcn-enterprise/compare/v0.6.0...v0.6.1
+[v0.6.0]: https://github.com/codenotary/vcn-enterprise/compare/v0.5.4...v0.6.0
+[v0.5.4]: https://github.com/codenotary/vcn-enterprise/compare/v0.5.3...v0.5.4
+[v0.5.3]: https://github.com/codenotary/vcn-enterprise/compare/v0.5.2...v0.5.3
+[v0.5.2]: https://github.com/codenotary/vcn-enterprise/compare/v0.5.1...v0.5.2
+[v0.5.1]: https://github.com/codenotary/vcn-enterprise/compare/0.5.0...v0.5.1
+[0.5.0]: https://github.com/codenotary/vcn-enterprise/compare/v0.5.0...0.5.0
+[v0.5.0]: https://github.com/codenotary/vcn-enterprise/compare/0.4.3...v0.5.0
+[0.4.3]: https://github.com/codenotary/vcn-enterprise/compare/0.4.2...0.4.3
+[0.4.2]: https://github.com/codenotary/vcn-enterprise/compare/0.4.1...0.4.2
+[0.4.1]: https://github.com/codenotary/vcn-enterprise/compare/0.4.0...0.4.1
+[0.4.0]: https://github.com/codenotary/vcn-enterprise/compare/0.3.6...0.4.0
+[0.3.6]: https://github.com/codenotary/vcn-enterprise/compare/0.3.5...0.3.6
+[0.3.5]: https://github.com/codenotary/vcn-enterprise/compare/0.3.4...0.3.5
+[0.3.4]: https://github.com/codenotary/vcn-enterprise/compare/0.3.3...0.3.4
+[0.3.3]: https://github.com/codenotary/vcn-enterprise/compare/0.3.2...0.3.3
+[0.3.2]: https://github.com/codenotary/vcn-enterprise/compare/0.3.1...0.3.2
+[0.3.1]: https://github.com/codenotary/vcn-enterprise/compare/0.3.0...0.3.1
+[0.3.0]: https://github.com/codenotary/vcn-enterprise/compare/0.2.2...0.3.0
+[0.2.2]: https://github.com/codenotary/vcn-enterprise/compare/v.0.2-beta.0...0.2.2
+[v.0.2-beta.0]: https://github.com/codenotary/vcn-enterprise/compare/v.0.1-beta.2...v.0.2-beta.0

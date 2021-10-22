@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/codenotary/cas/pkg/cmd"
 	"github.com/spf13/cobra/doc"
-	"github.com/vchain-us/vcn/pkg/cmd"
 )
 
 func main() {

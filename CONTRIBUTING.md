@@ -1,6 +1,6 @@
 # How to contribute
 
-We're thrilled that you want to contribute to our project as third-party patches are essential for keeping `vcn` great.  
+We're thrilled that you want to contribute to our project as third-party patches are essential for keeping `csa` great.  
 
 A **BIG Thank you** for that!
 
@@ -14,7 +14,7 @@ The best way to contribute and get involved in the project is through issues, yo
 
 There are mainly two kinds of issues you can open:
 
-- **Bug Report**: if you found a problem in `vcn` and you want to discuss and get it fixed!
+- **Bug Report**: if you found a problem in `cas` and you want to discuss and get it fixed!
 
 - **Feature Request**: any new feature needs to be discussed in this kind of issue. Be very good at explaining your intent, it's always important that others can understand what you mean in order to discuss.
 

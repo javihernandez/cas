@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - develop
 jobs:
   build_test:
     name: Compile and run "make test"

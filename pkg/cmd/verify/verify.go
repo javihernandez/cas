@@ -9,6 +9,7 @@
 package verify
 
 import (
+	"encoding/base64"
 	"fmt"
 	"regexp"
 	"strings"
@@ -45,6 +46,12 @@ var (
 func getSignerIDs() []string {
 	ids := viper.GetStringSlice("signerID")
 	if len(ids) > 0 {
+		for i := range ids {
+			if strings.Contains(ids[i], "@") {
+				// signer is an e-mail - encode it
+				ids[i] = base64.StdEncoding.EncodeToString([]byte(ids[i]))
+			}
+		}
 		return ids
 	}
 	return viper.GetStringSlice("key")

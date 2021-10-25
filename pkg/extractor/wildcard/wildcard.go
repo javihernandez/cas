@@ -82,7 +82,7 @@ func Artifact(u *uri.URI, options ...extractor.Option) ([]*api.Artifact, error) 
 	}
 
 	if len(filePaths) == 0 {
-		return nil, errors.New("no files matching from provided search terms")
+		return nil, errors.New("no matching files found")
 	}
 
 	arst := []*api.Artifact{}

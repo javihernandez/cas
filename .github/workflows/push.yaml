@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - develop
 jobs:
   build_test:
     name: Compile and run "make test"
@@ -47,6 +48,7 @@ jobs:
       CNIL_GITHUB_TEST_API_KEY: ${{ secrets.CNIL_GITHUB_TEST_API_KEY }}
       CNIL_GITHUB_TEST_HOST: ${{ secrets.CNIL_GITHUB_TEST_HOST }}
       CNIL_GITHUB_TEST_PORT: ${{ secrets.CNIL_GITHUB_TEST_PORT }}
+      REVOKED_SIGNERID: ${{secrets.REVOKED_SIGNERID}}
     steps:
       - uses: actions/download-artifact@v2
         with:
@@ -67,15 +69,15 @@ jobs:
 
           ${{ matrix.exe }} login --host=${CNIL_GITHUB_TEST_HOST} --port=${CNIL_GITHUB_TEST_PORT}
           ${{ matrix.exe }} n README.txt --host=${CNIL_GITHUB_TEST_HOST} --port=${CNIL_GITHUB_TEST_PORT}
-          ${{ matrix.exe }} a -s github README.txt --host=${CNIL_GITHUB_TEST_HOST} --port=${CNIL_GITHUB_TEST_PORT}
+          ${{ matrix.exe }} a -s vcn-test-api-key README.txt --host=${CNIL_GITHUB_TEST_HOST} --port=${CNIL_GITHUB_TEST_PORT}
 
-          # with CI attributes and attachments
-          ${{ matrix.exe }} n README.txt --host=${CNIL_GITHUB_TEST_HOST} --port=${CNIL_GITHUB_TEST_PORT} --ci-attr --attach README.txt
+          # with CI attributes
+          ${{ matrix.exe }} n README.txt --host=${CNIL_GITHUB_TEST_HOST} --port=${CNIL_GITHUB_TEST_PORT} --ci-attr
 
           # unknown signer
           ${{ matrix.exe }} a -s unknown README.txt --host=${CNIL_GITHUB_TEST_HOST} --port=${CNIL_GITHUB_TEST_PORT} || retval=$?
           test $retval -eq 2
 
           # revoked signer
-          ${{ matrix.exe }} a -s new-revoked README.txt --host=${CNIL_GITHUB_TEST_HOST} --port=${CNIL_GITHUB_TEST_PORT} || retval=$?
+          ${{ matrix.exe }} a -s ${REVOKED_SIGNERID} --hash 959a4b9b78aec32ec17b69b04f23e94d35fe6847eb3933ef560b0e925f26fa56 --host=${CNIL_GITHUB_TEST_HOST} --port=${CNIL_GITHUB_TEST_PORT} || retval=$?
           test $retval -eq 4

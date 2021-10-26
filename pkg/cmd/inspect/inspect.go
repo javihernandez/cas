@@ -158,14 +158,14 @@ func runInspect(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if first > 10 {
-		return fmt.Errorf("only first 10 items are allowed when using --last flag")
+		return fmt.Errorf("only first 10 items are allowed when using --first flag")
 	}
 	last, err := cmd.Flags().GetUint64("last")
 	if err != nil {
 		return err
 	}
-	if first > 10 {
-		return fmt.Errorf("only last 10 items are allowed when using --first flag")
+	if last > 10 {
+		return fmt.Errorf("only last 10 items are allowed when using --last flag")
 	}
 	start, err := cmd.Flags().GetString("start")
 	if err != nil {

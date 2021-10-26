@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file. This projec
 <a name="unreleased"></a>
 ## [Unreleased]
 
+<a name="v0.10.0-RC-2"></a>
+## [v0.10.0-RC-2] - 2021-10-26
+### Bug Fixes
+- fixed integration tests
+- updated documentation
+- correctly limit the number of inspected items
+
+### Changes
+- added support for plain e-mail as signer ID
 
 <a name="v0.10.0-RC-1"></a>
 ## [v0.10.0-RC-1] - 2021-10-22

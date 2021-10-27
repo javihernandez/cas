@@ -1,6 +1,6 @@
 SHELL=/bin/bash -o pipefail
 
-VERSION=0.10.0-RC-2
+VERSION=1.0.0
 TARGETS=linux/amd64 windows/amd64 darwin/amd64 linux/s390x linux/ppc64le  linux/arm64
 
 

@@ -346,7 +346,18 @@ connection using the `--no-tls` option:
 cas login --port 80 --host cas.codenotary.com  --no-tls
 ```
 
+#### Verify CAS server identity
+Every message returned by CAS is cryptographically signed.
+In order to verify the identity of the server is possible to calculate locally the fingerprint and compare it with the following:
 
+`SHA256:Re5IAHGkYk32xfnG8txbwJuJPVFe8Mf5AOv3bLg6XsY`
+
+To generate local fingerprint use the following commands:
+```shell
+ssh-keygen -i -m PKCS8 -f ~/.cas-trusted-signing-pub-key > mykey.pem.pub
+ssh-keygen -l -v -f mykey.pem.pub
+rm mykey.pem.pub
+```
 
 ### Add custom metadata when signing assets
 The user can upload custom metadata when doing an asset notarization using the `--attr` option, e.g.:

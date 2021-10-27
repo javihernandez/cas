@@ -9,11 +9,11 @@
 Give any digital asset a meaningful, globally-unique, immutable identity that is authentic, verifiable, traceable from anywhere.
 
 <img align="right" src="docs/img/codenotary_mascot.png" width="256px"/>
-When using CodeNotary CAS in source code, release, deployment or at runtime, you allow a continuous trust verification that can be used to detect unusual or unwanted activity in your workload and act on it.
+When using Codenotary CAS in source code, release, deployment or at runtime, you allow a continuous trust verification that can be used to detect unusual or unwanted activity in your workload and act on it.
 <br/>
-Powered by CodeNotary's digital identity infrastructure, CAS lets you do Attestation of all of your digital assets that add a trust level of your choice, custom attributes and a meaningful status without touching or appending anything (unlike digital certificates). That allows change and revocation post-release without breaking any customer environment.
+Powered by Codenotary's digital identity infrastructure, CAS lets you Attest all your digital assets that add a trust level of your choice, custom attributes and meaningful status without touching or appending anything (unlike digital certificates). That allows change and revocation post-release without breaking any customer environment.
 <br/>
-Everything is done in a global, collaborative way to break the common silo solution architecture. Leveraging an immutable, always-on DLT platform allows you to avoid complex setup of Certificate authorities or digital certificates (that are unfit for DevOps anyway).
+Everything is done in a global, collaborative way to break the common silo solution architecture. Leveraging an immutable always-on platform allows you to avoid complex setup of Certificate authorities or digital certificates (that are unfit for DevOps anyway).
 
 ----
 > :warning: **From version v0.10 a major refactory has replaced the old VCN CLI. While the old VCN versions are available to download in the release section, we don't provide support and maintenance anymore.** 
@@ -23,7 +23,7 @@ Everything is done in a global, collaborative way to break the common silo solut
 
 - [Quick start](#quick-start)
 - [DevSecOps in mind](#devsecops-in-mind)
-- [What kind of behaviors can CodeNotary cas detect](#what-kind-of-behaviors-can-codenotary-cas-detect)
+- [What kind of behaviors can Codenotary cas detect](#what-kind-of-behaviors-can-codenotary-cas-detect)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Integrations](#integrations)
@@ -36,7 +36,7 @@ Everything is done in a global, collaborative way to break the common silo solut
 1. [**Create your identity (free)**](https://cas.codenotary.com) - You will get an `API_KEY` from our free cloud CAS Cloud.  
 
 
-2. **Download CodeNotary CAS**
+2. **Download Codenotary CAS**
 
 
    ```
@@ -79,7 +79,7 @@ Everything is done in a global, collaborative way to break the common silo solut
 ## Table of contents
 
 - [DevSecOps in mind](#devsecops-in-mind)
-- [What kind of behaviors can CodeNotary cas detect](#what-kind-of-behaviors-can-codenotary-cas-detect)
+- [What kind of behaviors can Codenotary cas detect](#what-kind-of-behaviors-can-codenotary-cas-detect)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Integrations](#integrations)
@@ -91,12 +91,12 @@ Everything is done in a global, collaborative way to break the common silo solut
 
 
 ## DevSecOps in mind
-Codenotary cas is a solution written by a devops-obsessed engineers for Devops engineers to bring better trust and security to the the CloudNative source to deployment process
+Codenotary cas is a solution written by devops-obsessed engineers for Devops engineers to bring better trust and security to the the CloudNative source to deployment process
 
-## What kind of behaviors can CodeNotary cas detect
+## What kind of behaviors can Codenotary cas detect
 cas (and its extensions for Docker, Kubernetes, documents or CI/CD) can detect, authenticate and alert on any behavior that involves using unauthentic digital assets. cas verification can be embedded anywhere and can be used to trigger alerts, updates or workflows.
 
-cas is so versatile, it can help detecting or acting on the following (but not limited to):
+cas detects or acts on the following (but not limited to):
 * Immutable tagging of source code, builds, and container images with version number, owner, timestamp, organization, trust level, and much more
 * Simple and tamper-proof extraction of notarized tags like version number, owner, timestamp, organization, and trust level from any source code, build and container (based on the related image)
 * Quickly discover and identify untrusted, revoked or obsolete libraries, builds, and containers in your application
@@ -348,7 +348,7 @@ cas login --port 80 --host cas.codenotary.com  --no-tls
 
 #### Verify CAS server identity
 Every message returned by CAS is cryptographically signed.
-In order to verify the identity of the server is possible to calculate locally the fingerprint and compare it with the following:
+In order to verify the identity of the server you can calculate locally the fingerprint and compare it with the following:
 
 `SHA256:Re5IAHGkYk32xfnG8txbwJuJPVFe8Mf5AOv3bLg6XsY`
 

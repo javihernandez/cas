@@ -16,7 +16,7 @@ Powered by Codenotary's digital identity infrastructure, CAS lets you Attest all
 Everything is done in a global, collaborative way to break the common silo solution architecture. Leveraging an immutable always-on platform allows you to avoid complex setup of Certificate authorities or digital certificates (that are unfit for DevOps anyway).
 
 ----
-> :warning: **From version v0.10 a major refactory has replaced the old VCN CLI. While the old VCN versions are available to download in the release section, we don't provide support and maintenance anymore.** 
+> :warning: **From version v0.10 a major refactory has replaced the old VCN CLI. While the old VCN versions are available to download in the release section, we don't provide support and maintenance anymore.**
 ----
 
 ## Table of contents
@@ -33,7 +33,7 @@ Everything is done in a global, collaborative way to break the common silo solut
 
 ## Quick start
 
-1. [**Create your identity (free)**](https://cas.codenotary.com) - You will get an `API_KEY` from our free cloud CAS Cloud.  
+1. [**Create your identity (free)**](https://cas.codenotary.com) - You will get an `API_KEY` from our free cloud CAS Cloud.
 
 
 2. **Download Codenotary CAS**
@@ -42,7 +42,7 @@ Everything is done in a global, collaborative way to break the common silo solut
    ```
    bash <(curl http://getcas.codenotary.io -L)
    ```
-   
+
 > For Windows users, donwload your binay [here](https://github.com/codenotary/cas/releases/latest).
 
 
@@ -51,7 +51,7 @@ Everything is done in a global, collaborative way to break the common silo solut
    ```bash
    export CAS_API=<your API KEY>; cas login
    ```
-   
+
 
 4. **Create a Software Bill of Materials (SBOM)**
 
@@ -61,13 +61,13 @@ Everything is done in a global, collaborative way to break the common silo solut
 
 4. **Attest your assets** Attestation is the combination of Notarization (creating digital proof of an asset) and Authentication (getting the authenticity of an asset).
 
-    Notarize an asset: 
+    Notarize an asset:
 
    ```bash
    cas notarize docker://wordpress
    ```
-   
-   Authenticate an asset: 
+
+   Authenticate an asset:
 
    ```bash
    cas authenticate docker://wordpress
@@ -152,9 +152,49 @@ Now, you can build `cas` in the working directory by using `make cas` and then r
 Alternatively, you can install `cas` in your system simply by running `make install`. This will put the `cas` executable into `GOBIN` which is
 accessible throughout the system.
 
-### yum and deb (TBD)
+### Installing packages (yum/deb) from codenotary repository
 
-&nbsp;
+If you are using a linux distribution based on .deb or .rpm packages, you can install `cas` using package from the
+codenotary repository.
+
+**RPM**
+
+For .rpm based distributions (RedHat / AlmaLinux / CentOS ...) you have to add the repository by creating a `.repo` file (say `codenotary.repo`) in the `/etc/yum.repos.d/` directory:
+
+```
+[codenotary-repo]
+name=Codenotary repository
+baseurl=https://packages.codenotary.org/rpm/vcn
+gpgcheck=1
+gpgkey=https://packages.codenotary.org/packages.codenotary.org.gpp.key
+enabled=1
+```
+This command will do that for you:
+```
+wget https://packages.codenotary.org/codenotary.repo -O /etc/yum.repos.d/codenotary.repo
+```
+
+Then you can install cas with the command:
+```
+yum install cas
+```
+
+**DEB**
+
+For debian based distributions, you just add this line to `/etc/apt/sources.list`, or create a `.list` file in `/etc/apt/sources.list.d` with this content:
+```
+deb https://packages.codenotary.org/debian/ stable main
+```
+
+You then have to install the Codenotary public key used for signing the package:
+```
+apt-key adv --fetch-keys https://packages.codenotary.org/packages.codenotary.org.gpp.key
+```
+And then you can install cas using regular `apt` commands:
+```
+apt-get update
+apt-get install cas
+```
 
 
 ## Usage
@@ -405,7 +445,7 @@ The authentication is performed by a user possessing an `CAS_API_KEY` issued by 
 ```
 cas authenticate --signerID 0xxxxxxxxxxxxxxxxxxxxxxxxxxx docker://hello-world
 ```
- 
+
 ## License
 
 This software is released under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0).

@@ -40,7 +40,7 @@ Everything is done in a global, collaborative way to break the common silo solut
 
 
    ```
-   bash <(curl http://getcas.codenotary.io -L)
+   bash <(curl https://getcas.codenotary.io -L)
    ```
 
 > For Windows users, donwload your binay [here](https://github.com/codenotary/cas/releases/latest).

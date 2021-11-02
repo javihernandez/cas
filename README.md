@@ -9,21 +9,21 @@
 Give any digital asset a meaningful, globally-unique, immutable identity that is authentic, verifiable, traceable from anywhere.
 
 <img align="right" src="docs/img/codenotary_mascot.png" width="256px"/>
-When using CodeNotary CAS in source code, release, deployment or at runtime, you allow a continuous trust verification that can be used to detect unusual or unwanted activity in your workload and act on it.
+When using Codenotary CAS in source code, release, deployment or at runtime, you allow a continuous trust verification that can be used to detect unusual or unwanted activity in your workload and act on it.
 <br/>
-Powered by CodeNotary's digital identity infrastructure, CAS lets you do Attestation of all of your digital assets that add a trust level of your choice, custom attributes and a meaningful status without touching or appending anything (unlike digital certificates). That allows change and revocation post-release without breaking any customer environment.
+Powered by Codenotary's digital identity infrastructure, CAS lets you Attest all your digital assets that add a trust level of your choice, custom attributes and meaningful status without touching or appending anything (unlike digital certificates). That allows change and revocation post-release without breaking any customer environment.
 <br/>
-Everything is done in a global, collaborative way to break the common silo solution architecture. Leveraging an immutable, always-on DLT platform allows you to avoid complex setup of Certificate authorities or digital certificates (that are unfit for DevOps anyway).
+Everything is done in a global, collaborative way to break the common silo solution architecture. Leveraging an immutable always-on platform allows you to avoid complex setup of Certificate authorities or digital certificates (that are unfit for DevOps anyway).
 
 ----
-> :warning: **From version v0.10 a major refactory has replaced the old VCN CLI. While the old VCN versions are available to download in the release section, we don't provide support and maintenance anymore.** 
+> :warning: **From version v0.10 a major refactory has replaced the old VCN CLI. While the old VCN versions are available to download in the release section, we don't provide support and maintenance anymore.**
 ----
 
 ## Table of contents
 
 - [Quick start](#quick-start)
 - [DevSecOps in mind](#devsecops-in-mind)
-- [What kind of behaviors can CodeNotary cas detect](#what-kind-of-behaviors-can-codenotary-cas-detect)
+- [What kind of behaviors can Codenotary cas detect](#what-kind-of-behaviors-can-codenotary-cas-detect)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Integrations](#integrations)
@@ -33,16 +33,16 @@ Everything is done in a global, collaborative way to break the common silo solut
 
 ## Quick start
 
-1. [**Create your identity (free)**](https://cas.codenotary.com) - You will get an `API_KEY` from our free cloud CAS Cloud.  
+1. [**Create your identity (free)**](https://cas.codenotary.com) - You will get an `API_KEY` from our free cloud CAS Cloud.
 
 
-2. **Download CodeNotary CAS**
+2. **Download Codenotary CAS**
 
 
    ```
    bash <(curl http://getcas.codenotary.io -L)
    ```
-   
+
 > For Windows users, donwload your binay [here](https://github.com/codenotary/cas/releases/latest).
 
 
@@ -51,7 +51,7 @@ Everything is done in a global, collaborative way to break the common silo solut
    ```bash
    export CAS_API=<your API KEY>; cas login
    ```
-   
+
 
 4. **Create a Software Bill of Materials (SBOM)**
 
@@ -61,13 +61,13 @@ Everything is done in a global, collaborative way to break the common silo solut
 
 4. **Attest your assets** Attestation is the combination of Notarization (creating digital proof of an asset) and Authentication (getting the authenticity of an asset).
 
-    Notarize an asset: 
+    Notarize an asset:
 
    ```bash
    cas notarize docker://wordpress
    ```
-   
-   Authenticate an asset: 
+
+   Authenticate an asset:
 
    ```bash
    cas authenticate docker://wordpress
@@ -79,7 +79,7 @@ Everything is done in a global, collaborative way to break the common silo solut
 ## Table of contents
 
 - [DevSecOps in mind](#devsecops-in-mind)
-- [What kind of behaviors can CodeNotary cas detect](#what-kind-of-behaviors-can-codenotary-cas-detect)
+- [What kind of behaviors can Codenotary cas detect](#what-kind-of-behaviors-can-codenotary-cas-detect)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Integrations](#integrations)
@@ -91,12 +91,12 @@ Everything is done in a global, collaborative way to break the common silo solut
 
 
 ## DevSecOps in mind
-Codenotary cas is a solution written by a devops-obsessed engineers for Devops engineers to bring better trust and security to the the CloudNative source to deployment process
+Codenotary cas is a solution written by devops-obsessed engineers for Devops engineers to bring better trust and security to the the CloudNative source to deployment process
 
-## What kind of behaviors can CodeNotary cas detect
+## What kind of behaviors can Codenotary cas detect
 cas (and its extensions for Docker, Kubernetes, documents or CI/CD) can detect, authenticate and alert on any behavior that involves using unauthentic digital assets. cas verification can be embedded anywhere and can be used to trigger alerts, updates or workflows.
 
-cas is so versatile, it can help detecting or acting on the following (but not limited to):
+cas detects or acts on the following (but not limited to):
 * Immutable tagging of source code, builds, and container images with version number, owner, timestamp, organization, trust level, and much more
 * Simple and tamper-proof extraction of notarized tags like version number, owner, timestamp, organization, and trust level from any source code, build and container (based on the related image)
 * Quickly discover and identify untrusted, revoked or obsolete libraries, builds, and containers in your application
@@ -152,9 +152,49 @@ Now, you can build `cas` in the working directory by using `make cas` and then r
 Alternatively, you can install `cas` in your system simply by running `make install`. This will put the `cas` executable into `GOBIN` which is
 accessible throughout the system.
 
-### yum and deb (TBD)
+### Installing packages (yum/deb) from codenotary repository
 
-&nbsp;
+If you are using a linux distribution based on .deb or .rpm packages, you can install `cas` using package from the
+codenotary repository.
+
+**RPM**
+
+For .rpm based distributions (RedHat / AlmaLinux / CentOS ...) you have to add the repository by creating a `.repo` file (say `codenotary.repo`) in the `/etc/yum.repos.d/` directory:
+
+```
+[codenotary-repo]
+name=Codenotary repository
+baseurl=https://packages.codenotary.org/rpm/vcn
+gpgcheck=1
+gpgkey=https://packages.codenotary.org/packages.codenotary.org.gpp.key
+enabled=1
+```
+This command will do that for you:
+```
+wget https://packages.codenotary.org/codenotary.repo -O /etc/yum.repos.d/codenotary.repo
+```
+
+Then you can install cas with the command:
+```
+yum install cas
+```
+
+**DEB**
+
+For debian based distributions, you just add this line to `/etc/apt/sources.list`, or create a `.list` file in `/etc/apt/sources.list.d` with this content:
+```
+deb https://packages.codenotary.org/debian/ stable main
+```
+
+You then have to install the Codenotary public key used for signing the package:
+```
+apt-key adv --fetch-keys https://packages.codenotary.org/packages.codenotary.org.gpp.key
+```
+And then you can install cas using regular `apt` commands:
+```
+apt-get update
+apt-get install cas
+```
 
 
 ## Usage
@@ -348,7 +388,7 @@ cas login --port 80 --host cas.codenotary.com  --no-tls
 
 #### Verify CAS server identity
 Every message returned by CAS is cryptographically signed.
-In order to verify the identity of the server is possible to calculate locally the fingerprint and compare it with the following:
+In order to verify the identity of the server you can calculate locally the fingerprint and compare it with the following:
 
 `SHA256:Re5IAHGkYk32xfnG8txbwJuJPVFe8Mf5AOv3bLg6XsY`
 
@@ -405,7 +445,7 @@ The authentication is performed by a user possessing an `CAS_API_KEY` issued by 
 ```
 cas authenticate --signerID 0xxxxxxxxxxxxxxxxxxxxxxxxxxx docker://hello-world
 ```
- 
+
 ## License
 
 This software is released under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0).

@@ -47,6 +47,8 @@ static:
 .PHONY: docs/cmd
 docs/cmd:
 	rm -rf docs/cmd/*.md
+	mkdir -p docs/man
+	rm -rf docs/man/*.1
 	$(GO) run docs/cmd/main.go
 
 

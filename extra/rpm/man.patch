@@ -1,0 +1,41 @@
+diff --git a/Makefile b/Makefile
+index ac5a963..8bbe4ca 100644
+--- a/Makefile
++++ b/Makefile
+@@ -47,6 +47,8 @@ static:
+ .PHONY: docs/cmd
+ docs/cmd:
+ 	rm -rf docs/cmd/*.md
++	mkdir -p docs/man
++	rm -rf docs/man/*.1
+ 	$(GO) run docs/cmd/main.go
+ 
+ 
+diff --git a/docs/cmd/main.go b/docs/cmd/main.go
+index 354e117..72c98e0 100644
+--- a/docs/cmd/main.go
++++ b/docs/cmd/main.go
+@@ -13,9 +13,22 @@ func main() {
+ 	if err != nil {
+ 		log.Fatal(err)
+ 	}
+-
++	log.Printf("Generating Markdown pages")
+ 	err = doc.GenMarkdownTree(cmd.Root(), pwd+"/docs/cmd")
+ 	if err != nil {
+ 		log.Fatal(err)
+ 	}
++
++	header := &doc.GenManHeader{
++		Title: "CAS",
++		Section: "1",
++	}
++	
++	log.Printf("Generating man pages")
++	err = doc.GenManTree(cmd.Root(), header, pwd+"/docs/man")
++	if err != nil {
++		log.Fatal(err)
++	}
++
++	log.Printf("Done")
+ }

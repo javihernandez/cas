@@ -49,7 +49,7 @@ Everything is done in a global, collaborative way to break the common silo solut
 3. **Login**
 
    ```bash
-   export CAS_API=<your API KEY>; cas login
+   export CAS_API_KEY=<your API KEY>; cas login
    ```
 
 

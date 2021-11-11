@@ -42,7 +42,7 @@ install: vendor test
 
 .PHONY: static
 static:
-	$(GO) build -a -tags netgo -ldflags '${LDFLAGS_STATIC}' ./cmd/cas
+	CGO_ENABLED=0 $(GO) build -a -tags netgo -ldflags '${LDFLAGS_STATIC}' ./cmd/cas
 
 .PHONY: docs/cmd
 docs/cmd:

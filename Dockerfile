@@ -6,7 +6,7 @@
 FROM golang:1.16.6-buster as build
 WORKDIR /src
 COPY . .
-RUN GOOS=linux GOARCH=amd64 make static
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 make static
 
 FROM alpine:3.12 as ca
 RUN apk add --no-cache \

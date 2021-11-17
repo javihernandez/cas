@@ -11,6 +11,7 @@ package inspect
 import (
 	"fmt"
 	"strings"
+	"encoding/base64"
 
 	"github.com/codenotary/cas/pkg/cmd/internal/cli"
 	"github.com/codenotary/cas/pkg/cmd/internal/types"
@@ -140,6 +141,10 @@ func runInspect(cmd *cobra.Command, args []string) error {
 	signerID, err := cmd.Flags().GetString("signerID")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(signerID, "@") {
+		// signer is an e-mail - encode it
+		signerID = base64.StdEncoding.EncodeToString([]byte(signerID))
 	}
 
 	lcHost := viper.GetString("host")

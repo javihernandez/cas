@@ -32,6 +32,11 @@ func LcSign(u *api.LcUser, artifacts []*api.Artifact, state meta.Status, output 
 		bar = progressbar.Default(int64(lenArtifacts))
 	}
 
+	// Override the asset's name, if provided by --name
+	if len(artifacts) == 1 && name != "" {
+		artifacts[0].Name = name
+	}
+
 	for _, a := range artifacts {
 		// Copy user provided custom attributes
 		a.Metadata.SetValues(metadata)

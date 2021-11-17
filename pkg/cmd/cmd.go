@@ -21,6 +21,7 @@ import (
 	"github.com/codenotary/cas/pkg/cmd/logout"
 	"github.com/codenotary/cas/pkg/cmd/sign"
 	"github.com/codenotary/cas/pkg/cmd/verify"
+	"github.com/codenotary/cas/pkg/cmd/list"
 	"github.com/codenotary/cas/pkg/meta"
 	"github.com/codenotary/cas/pkg/store"
 
@@ -112,4 +113,7 @@ func init() {
 
 	// BoM
 	rootCmd.AddCommand(bom.NewCommand())
+
+	// List
+	rootCmd.AddCommand(list.NewCommand())
 }

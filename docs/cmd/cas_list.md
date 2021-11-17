@@ -1,11 +1,11 @@
-## cas inspect
+## cas list
 
-Returns the asset history with low-level information
+Returns the history of operations made with API key
 
 ### Synopsis
 
 
-Returns the asset history with low-level information
+Returns the history of operations made with API key
 
 Environment variables:
 CAS_HOST=
@@ -18,17 +18,17 @@ CAS_LEDGER=
 
 
 ```
-cas inspect [flags]
+cas list [flags]
 ```
 
 ### Examples
 
 ```
 
-cas inspect document.pdf --last 1
-cas inspect document.pdf --first 1
-cas inspect document.pdf --start 2020/10/28-08:00:00 --end 2020/10/28-17:00:00 --first 10
-cas inspect document.pdf --signerID CygBE_zb8XnprkkO6ncIrbbwYoUq5T1zfyEF6DhqcAI= --start 2020/10/28-16:00:00 --end 2020/10/28-17:10:00 --last 3
+cas list
+cas list --api-key <APIkey>
+cas list --start 2020/10/28-08:00:00 --end 2020/10/28-17:00:00 --first 10
+cas list --start 2020/10/28-16:00:00 --end 2020/10/28-17:10:00 --last 3
 
 ```
 
@@ -38,16 +38,13 @@ cas inspect document.pdf --signerID CygBE_zb8XnprkkO6ncIrbbwYoUq5T1zfyEF6DhqcAI=
       --api-key string    Community Attestation Service api key
       --cert string       local or absolute path to a certificate file needed to set up tls connection to a Community Attestation Service
       --end string        set the end of date and time range filter. Example 2020/10/28-16:00:00
-      --extract-only      if set, print only locally extracted info
-      --first uint        set the limit for the first elements filter. MAX 10
-      --hash string       specify a hash to inspect, if set no ARG can be used
-  -h, --help              help for inspect
+      --first uint        set the limit for the first elements filter
+  -h, --help              help for list
       --host string       if set with host, action will be route to a Community Attestation Service
-      --last uint         set the limit for the last elements filter. MAX 10
+      --last uint         set the limit for the last elements filter
       --ledger string     Community Attestation Service ledger. Required when a multi-ledger API key is used.
       --no-tls            allow insecure connections when connecting to a Community Attestation Service
-      --port string       set port for set up a connection to a Community Attestation Service (default 443). If --no-tls is provided default port will be 80
-      --signerID string   specify a signerID to refine inspection result on ledger compliance
+      --port string       set port for set up a connection to a Community Attestation Service (default 443). If --no-tls is provided default port will be 80 (default "443")
       --skip-tls-verify   disables tls certificate verification when connecting to a Community Attestation Service
       --start string      set the start of date and time range filter. Example 2020/10/28-16:00:00
 ```

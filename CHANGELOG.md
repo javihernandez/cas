@@ -1,7 +1,32 @@
 # CHANGELOG
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-<a name="unreleased"></a>
-## [Unreleased]
+
+<a name="v1.0.1"></a>
+## [v1.0.1] - 2021-11-17
+
+### Bug Fixes
+- use `--name` CLI option when notarizing by hash
+- fixed static binary build
+- support plain e-mail signerID in `inspect`
+
+### Features
+- `list` command to show history of the operations
+
+<a name="v1.0.0"></a>
+## [v1.0.0] - 2021-10-26
+
+### Bug Fixes
+- fixed integration tests
+- updated documentation
+
+### Changes
+- added support for plain e-mail as signer ID
+- major rebranding from vcn to cas
+- simplified login
+
+### Features
+- SBOM for docker images
+- public authentication
 
 <a name="v0.10.0-RC-2"></a>
 ## [v0.10.0-RC-2] - 2021-10-26

@@ -8,7 +8,7 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/caarlos0/spin v1.1.0
 	github.com/codenotary/immudb v1.0.5
-	github.com/containerd/containerd v1.5.7 // indirect
+	github.com/containerd/containerd v1.5.8 // indirect
 	github.com/dghubble/sling v1.3.0
 	github.com/docker/docker v20.10.8+incompatible
 	github.com/docker/go-connections v0.4.0 // indirect
@@ -21,6 +21,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0
+	github.com/opencontainers/image-spec v1.0.2 // indirect
 	github.com/package-url/packageurl-go v0.1.0
 	github.com/schollz/progressbar/v3 v3.7.0
 	github.com/sirupsen/logrus v1.8.1

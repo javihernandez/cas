@@ -1,4 +1,4 @@
-# [Community Attestation Service (CAS)](https://cas.codenotary.com)  <img align="right" src="https://codenotary.com/wp-content/uploads/2021/10/logo-brand.svg" width="160px"/>
+# [Community Attestation Service (CAS)](https://cas.codenotary.com)  <img align="right" src="https://cas.codenotary.com/_nuxt/img/logo-cas--light.810fcf3.svg" width="160px"/>
 
 [![Build and run testsuite](https://github.com/codenotary/cas/actions/workflows/pull.yml/badge.svg)](https://github.com/codenotary/cas/actions/workflows/pull.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/codenotary/cas)](https://goreportcard.com/report/github.com/codenotary/cas)

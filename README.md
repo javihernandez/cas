@@ -1,4 +1,4 @@
-# [Community Attestation Service (CAS)](https://cas.codenotary.com)  <img align="right" src="https://cas.codenotary.com/_nuxt/img/logo-cas--light.810fcf3.svg" width="160px"/>
+# [Community Attestation Service (CAS)](https://cas.codenotary.com)
 
 [![Build and run testsuite](https://github.com/codenotary/cas/actions/workflows/pull.yml/badge.svg)](https://github.com/codenotary/cas/actions/workflows/pull.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/codenotary/cas)](https://goreportcard.com/report/github.com/codenotary/cas)
@@ -8,7 +8,7 @@
 
 Give any digital asset a meaningful, globally-unique, immutable identity that is authentic, verifiable, traceable from anywhere.
 
-<img align="right" src="docs/img/codenotary_mascot.png" width="256px"/>
+<img align="right" src="https://cas.codenotary.com/_nuxt/img/logo-cas--light.810fcf3.svg" width="256px"/>
 When using Codenotary CAS in source code, release, deployment or at runtime, you allow a continuous trust verification that can be used to detect unusual or unwanted activity in your workload and act on it.
 <br/>
 Powered by Codenotary's digital identity infrastructure, CAS lets you Attest all your digital assets that add a trust level of your choice, custom attributes and meaningful status without touching or appending anything (unlike digital certificates). That allows change and revocation post-release without breaking any customer environment.

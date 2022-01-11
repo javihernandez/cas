@@ -138,7 +138,7 @@ Once downloaded, you can rename the binary to `cas`, then run it from anywhere.
 If you are on macOS and using [Homebrew](https://brew.sh/) (or on Linux and using [Linuxbrew](https://linuxbrew.sh/)), you can install `cas` with the following:
 
 ```
-brew tap codenotary/brew
+brew tap codenotary/cas
 brew install cas
 ```
 

@@ -144,7 +144,7 @@ brew install cas
 
 ### Build from Source
 
-After having installed [golang](https://golang.org/doc/install) 1.12 or newer clone this
+After having installed [golang](https://golang.org/doc/install) 1.13 or newer clone this
 repository into your working directory.
 
 Now, you can build `cas` in the working directory by using `make cas` and then run `./cas`.

@@ -15,8 +15,7 @@ cas list --output json
 
 ```
 cas notarize file.txt
-```
-> You need to set `CAS_NOTARIZATION_PASSWORD` [environment variable](environments.md#other-environment-variables) to make `cas` work in non-interactive mode
+```> You need to set `CAS_API_KEY=API-KEY` [environment variable](environments.md#other-environment-variables) to make `cas` work in non-interactive mode
 
 ## Dealing with errors
 

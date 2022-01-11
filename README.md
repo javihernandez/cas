@@ -280,16 +280,15 @@ cas authenticate --output=yaml <asset>
 
 ## Integrations
 
-* [Github Action](https://github.com/marketplace/actions/verify-commit) - An action to verify the authenticity of your commits within your Github workflow
-* [docker](docs/user-guide/schemes/docker.md) - Out of the box support for notarizing and authenticating Docker images.
+* [Github Action](https://github.com/marketplace?type=actions&query=cas+codenotary+) - GitHub Actions to notarize, authenticate  within your Github workflow
 * [hub.docker.com/r/codenotary/cas](https://hub.docker.com/r/codenotary/cas) - The `cas`'s DockerHub repository.
 
 &nbsp;
 
 ## Documentation
 
-* [Community Attestation Service jumpstart](docs/cas-cnlc-jumpstart.md)
 * [Command line usage](docs/cmd/cas.md)
+* [CAS Bill of Materials for Docker](docs/cmd/cas_bom.md)
 * [Configuration](docs/user-guide/configuration.md)
 * [Environments](docs/user-guide/environments.md)
 * [Formatted output (json/yaml)](docs/user-guide/formatted-output.md)
@@ -324,22 +323,11 @@ ls | xargs cas authenticate
 
 #### Authenticate by a specific signer
 By adding `--signerID`, you can authenticate that your asset has been signed by a specific SignerID.
-> A SignerID is the signer public address (represented as a 40 hex characters long string prefixed with `0x`).
+> A SignerID is the signer public address or its email.
 
 ```
-cas authenticate --signerID 0x8f2d1422aed72df1dba90cf9a924f2f3eb3ccd87 docker://hello-world
+cas authenticate --signerID <signer-email|signer-id> docker://hello-world
 ```
-
-#### Authenticate by a list of signers
-
-If an asset you or your organization wants to trust needs to be verified against a list of signers as a prerequisite, then use the `cas authenticate` command and the following syntax:
-
-- Add a `--signerID` flag in front of each SignerID you want to add
-(eg. `--signerID 0x0...1 --signerID 0x0...2`)
-- Or set the env var `cas_SIGNERID` correctly by using a space to separate each SignerID (eg. `cas_SIGNERID=0x0...1 0x0...2`)
-> Be aware that using the `--signerID` flag will take precedence over `cas_SIGNERID`.
-
-The asset authentication will succeed only if the asset has been signed by at least one of the signers.
 
 #### Authenticate using the asset's hash
 
@@ -377,13 +365,6 @@ configure cas to skip TLS certificate verification with the `--skip-tls-verify` 
 
 ```shell script
 cas login --port 443 --host cas.codenotary.com --cert mycert.pem --skip-tls-verify
-```
-
-Finally in case the Community Attestation Service is not exposed through a TLS endpoint, the user can request a cleartext
-connection using the `--no-tls` option:
-
-```shell script
-cas login --port 80 --host cas.codenotary.com  --no-tls
 ```
 
 #### Verify CAS server identity
@@ -439,7 +420,7 @@ cas inspect document.pdf --signerID CygBE_zb8XnprkkO6ncIrbbwYoUq5T1zfyEF6DhqcAI=
 
 ### Public Authentication
 
-The authentication is performed by a user possessing an `CAS_API_KEY` issued by the Community Attestation Service. But there are situations in which an anonymous authentication is needed: for example the authentication is performed by a GitHub action in an Open Source repository. For such scenarios, a public authentication is possible, where the authentication process does not need an `CAS_API_KEY` - nevetheless the `SIGNER_ID` has to be defined. Example:
+The authentication is performed by a user possessing an `CAS_API_KEY` issued by the Community Attestation Service. But there are situations in which an anonymous authentication is needed: for example the authentication is performed by a GitHub action in an Open Source repository. For such scenarios, a public authentication is possible, where the authentication process does not need an `CAS_API_KEY` - nevertheless the `SIGNER_ID` has to be defined. Example:
 
 
 ```

@@ -25,10 +25,6 @@ cas login [flags]
 ```
   # Codenotary.io login:
   ./cas login
-  # On-premise service login:
-  ./cas login --port 33443 --host lc.vchain.us --cert mycert.pem
-  ./cas login --port 3324 --host 127.0.0.1 --no-tls
-  ./cas login --port 443 --host lc.vchain.us --skip-tls-verify
 ```
 
 ### Options

@@ -363,7 +363,7 @@ func notarizeDeps(lcUser *api.LcUser, deps []artifact.Dependency, outputOpts art
 	for i := range deps { // Authenticate mutates the dependency, so use the index
 		if errs[i] != nil {
 			return nil, fmt.Errorf("cannot authenticate %s@%s dependency: %w",
-				deps[i].SignerID, deps[i].Version, errs[i])
+				deps[i].Name, deps[i].Version, errs[i])
 		}
 		if deps[i].TrustLevel < artifact.Unknown {
 			msgs = append(msgs, fmt.Sprintf("Dependency %s@%s trust level is %s",

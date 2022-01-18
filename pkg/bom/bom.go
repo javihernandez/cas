@@ -12,7 +12,7 @@ import (
 	"github.com/codenotary/cas/pkg/bom/artifact"
 )
 
-// extractor schemes that can be used to point to BoM source
+// extractor schemes that can be used to point to BOM source
 var BomSchemes = map[string]struct{}{"dir": {}, "git": {}, "docker": {}, "": {}}
 
 // New returns Artifact implementation of type, matching the artifact language/environment

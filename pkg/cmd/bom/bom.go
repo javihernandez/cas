@@ -27,11 +27,11 @@ func NewCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "bom",
 		Example: "  cas bom docker://alpine",
-		Short:   "Collect BoM information",
+		Short:   "Collect BOM information",
 		Long: `
-Collect BoM (Bill of Material) information
+Collect BOM (Bill of Materials) information
 
-It identifies dependencies of build artifact and produces the BoM. Dependencies can be
+It identifies dependencies of build artifact and produces the BOM. Dependencies can be
 later authenticated by 'cas a --bom', and notarized together with artifact by 'cas n --bom'.
 `,
 		RunE: runBom,
@@ -45,10 +45,10 @@ later authenticated by 'cas a --bom', and notarized together with artifact by 'c
 		},
 	}
 
-	// BoM output options
-	cmd.Flags().String("bom-spdx", "", "name of the file to output BoM in SPDX format")
-	cmd.Flags().String("bom-cyclonedx-json", "", "name of the file to output BoM in CycloneDX JSON format")
-	cmd.Flags().String("bom-cyclonedx-xml", "", "name of the file to output BoM in CycloneDX XML format")
+	// BOM output options
+	cmd.Flags().String("bom-spdx", "", "name of the file to output BOM in SPDX format")
+	cmd.Flags().String("bom-cdx-json", "", "name of the file to output BOM in CycloneDX JSON format")
+	cmd.Flags().String("bom-cdx-xml", "", "name of the file to output BOM in CycloneDX XML format")
 
 	return cmd
 }
@@ -96,5 +96,5 @@ func runBom(cmd *cobra.Command, args []string) error {
 
 	artifact.Display(bomArtifact, artifact.ColNameVersion)
 
-	return bom.Output(bomArtifact) // process all possible BoM output options
+	return bom.Output(bomArtifact) // process all possible BOM output options
 }

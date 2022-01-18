@@ -40,7 +40,6 @@ CAS_CERT=
 CAS_SKIP_TLS_VERIFY=false
 CAS_NO_TLS=false
 CAS_API_KEY=
-CAS_LEDGER=
 `,
 		Example: `  # Codenotary.io login:
   ./cas login

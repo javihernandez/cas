@@ -57,7 +57,7 @@ var ErrInsufficientTrustLevel = errors.New("some dependencies have insufficient 
 func processBOM(lcUser *api.LcUser, signerID, output, hash, path string) (artifact.Artifact, error) {
 	trustLevel, ok := trustLevelMap[viper.GetString("bom-trust-level")]
 	if !ok {
-		return nil, fmt.Errorf("invalid BoM trust level, supported values are trusted/unknown/unsupported/untrusted")
+		return nil, fmt.Errorf("invalid BOM trust level, supported values are trusted/unknown/unsupported/untrusted")
 	}
 
 	outputOpts := artifact.Progress
@@ -299,7 +299,7 @@ type counters struct {
 	HashChanged int `json:"hash_changed"`
 }
 
-// compare BoMs, output the difference
+// compare BOMs, output the difference
 // TODO currently this function assumes that artifact may have only one instance of the dependency,
 // multiple instances with different versions are not supported
 func diffBOMs(first, second artifact.Artifact) error {

@@ -14,11 +14,11 @@ import (
 	"math"
 	"time"
 
-	immuschema "github.com/codenotary/immudb/pkg/api/schema"
 	"github.com/codenotary/cas/pkg/api"
 	"github.com/codenotary/cas/pkg/cmd/internal/cli"
 	"github.com/codenotary/cas/pkg/cmd/internal/types"
 	"github.com/codenotary/cas/pkg/meta"
+	immuschema "github.com/codenotary/immudb/pkg/api/schema"
 	"github.com/fatih/color"
 	"github.com/vchain-us/ledger-compliance-go/schema"
 	"google.golang.org/grpc/codes"
@@ -103,7 +103,7 @@ func getSignerResults(ctx context.Context, key []byte, u *api.LcUser, first, las
 
 	desc := false
 	var limit uint64 = 0
-	var seekKey []byte
+	var endScore *immuschema.Score = nil
 
 	if first > 0 {
 		limit = first
@@ -111,21 +111,17 @@ func getSignerResults(ctx context.Context, key []byte, u *api.LcUser, first, las
 	if last > 0 {
 		limit = last
 		desc = true
-		seekKey = make([]byte, 256)
-		for i := 0; i < 256; i++ {
-			seekKey[i] = 0xFF
+		// it is important to set MaxScore for descending query
+		endScore = &immuschema.Score{
+			Score: math.MaxFloat64,
 		}
 	}
 
 	zitems, err = u.Client.ZScanExt(ctx, &immuschema.ZScanRequest{
-		Set:       key,
-		SeekKey:   seekKey,
-		SeekScore: math.MaxFloat64,
-		SeekAtTx:  math.MaxUint64,
-		Limit:     limit,
-		Desc:      desc,
-		SinceTx:   math.MaxUint64,
-		NoWait:    true,
+		Set:      key,
+		Limit:    limit,
+		Desc:     desc,
+		MaxScore: endScore,
 	})
 	if err != nil {
 		return nil, err
@@ -213,9 +209,7 @@ func getTimeRangedResults(ctx context.Context, u *api.LcUser, set []byte, first,
 	}
 
 	desc := false
-
 	var limit uint64 = 0
-	var seekKey []byte
 
 	if first > 0 {
 		limit = first
@@ -223,23 +217,21 @@ func getTimeRangedResults(ctx context.Context, u *api.LcUser, set []byte, first,
 	if last > 0 {
 		limit = last
 		desc = true
-		seekKey = make([]byte, 1024)
-		for i := 0; i < 1024; i++ {
-			seekKey[i] = 0xFF
+		// it is important to set MaxScore for descending query
+		if endScore == nil {
+			endScore = &immuschema.Score{
+				Score: math.MaxFloat64,
+			}
 		}
 	}
 
 	zitems, err = u.Client.ZScanExt(ctx, &immuschema.ZScanRequest{
-		Set:       set,
-		SeekKey:   seekKey,
-		SeekScore: math.MaxFloat64,
-		SeekAtTx:  math.MaxUint64,
-		Limit:     limit,
-		Desc:      desc,
-		MinScore:  startScore,
-		MaxScore:  endScore,
-		SinceTx:   math.MaxUint64,
-		NoWait:    true,
+		Set:      set,
+		Limit:    limit,
+		Desc:     desc,
+		MinScore: startScore,
+		MaxScore: endScore,
+		NoWait:   true,
 	})
 	if err != nil {
 		return nil, err

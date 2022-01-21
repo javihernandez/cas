@@ -16,19 +16,18 @@ import (
 	"math"
 	"strings"
 	"time"
-	"bytes"
 
 	"google.golang.org/grpc/metadata"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	immuschema "github.com/codenotary/immudb/pkg/api/schema"
 	"github.com/codenotary/cas/pkg/api"
 	"github.com/codenotary/cas/pkg/cmd/internal/cli"
 	"github.com/codenotary/cas/pkg/cmd/internal/types"
 	"github.com/codenotary/cas/pkg/meta"
 	"github.com/codenotary/cas/pkg/store"
+	immuschema "github.com/codenotary/immudb/pkg/api/schema"
 )
 
 const keyPrefix = "_ITEM.API-KEY-FULL."
@@ -50,7 +49,6 @@ CAS_CERT=
 CAS_SKIP_TLS_VERIFY=false
 CAS_NO_TLS=false
 CAS_API_KEY=
-CAS_LEDGER=
 `,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return viper.BindPFlags(cmd.Flags())
@@ -82,7 +80,7 @@ cas list --start 2020/10/28-16:00:00 --end 2020/10/28-17:10:00 --last 3
 
 	// ledger compliance flags
 	cmd.Flags().String("host", "", meta.CasHostFlagDesc)
-	cmd.Flags().String("port", "443", meta.CasPortFlagDesc)
+	cmd.Flags().String("port", "", meta.CasPortFlagDesc)
 	cmd.Flags().String("cert", "", meta.CasCertPathDesc)
 	cmd.Flags().Bool("skip-tls-verify", false, meta.CasSkipTlsVerifyDesc)
 	cmd.Flags().Bool("no-tls", false, meta.CasNoTlsDesc)
@@ -182,9 +180,7 @@ func list(u *api.LcUser, key string, start, end time.Time, first, last uint64, o
 	}
 
 	desc := false
-
 	var limit uint64 = 0
-	var seekKey []byte
 
 	if first > 0 {
 		limit = first
@@ -192,19 +188,22 @@ func list(u *api.LcUser, key string, start, end time.Time, first, last uint64, o
 	if last > 0 {
 		limit = last
 		desc = true
-		seekKey = bytes.Repeat([]byte{0xFF}, 256)
+		// it is important to set MaxScore for descending query
+		if endScore == nil {
+			endScore = &immuschema.Score{
+				Score: math.MaxFloat64,
+			}
+		}
 	}
 
 	md := metadata.Pairs(meta.CasPluginTypeHeaderName, meta.CasPluginTypeHeaderValue)
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
 	zItems, err := u.Client.ZScanExt(ctx, &immuschema.ZScanRequest{
-		Set:       []byte(key),
-		SeekKey:   seekKey,
-		SeekScore: math.MaxFloat64,
-		Limit:     limit,
-		Desc:      desc,
-		MinScore:  startScore,
-		MaxScore:  endScore,
+		Set:      []byte(key),
+		Limit:    limit,
+		Desc:     desc,
+		MinScore: startScore,
+		MaxScore: endScore,
 	})
 	if err != nil {
 		return err

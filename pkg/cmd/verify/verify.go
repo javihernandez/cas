@@ -99,7 +99,6 @@ CAS_CERT=
 CAS_SKIP_TLS_VERIFY=false
 CAS_NO_TLS=false
 CAS_API_KEY=
-CAS_LEDGER=
 CAS_SIGNING_PUB_KEY_FILE=
 CAS_SIGNING_PUB_KEY=
 CAS_ENFORCE_SIGNATURE_VERIFY=
@@ -145,14 +144,14 @@ CAS_ENFORCE_SIGNATURE_VERIFY=
 	cmd.Flags().String("api-key", "", meta.CasApiKeyDesc)
 	cmd.Flags().String("ledger", "", meta.CasLedgerDesc)
 	cmd.Flags().String("uid", "", meta.CasUidDesc)
-	cmd.Flags().Bool("bom", false, "link asset to its dependencies from BoM")
+	cmd.Flags().Bool("bom", false, "link asset to its dependencies from BOM")
 	cmd.Flags().String("bom-trust-level", "trusted", "min trust level: untrusted (unt) / unsupported (uns) / unknown (unk) / trusted (t)")
 	cmd.Flags().Float64("bom-max-unsupported", 0, "max number (in %) of unsupported dependencies")
-	cmd.Flags().Uint("bom-batch-size", 10, "By default BoM dependencies are authenticated/notarized in batches of up to 10 dependencies each. Use this flag to set a different batch size. A value of 0 will disable batching (all dependencies will be authenticated/notarized at once).")
-	// BoM output options
-	cmd.Flags().String("bom-spdx", "", "name of the file to output BoM in SPDX format")
-	cmd.Flags().String("bom-cyclonedx-json", "", "name of the file to output BoM in CycloneDX JSON format")
-	cmd.Flags().String("bom-cyclonedx-xml", "", "name of the file to output BoM in CycloneDX XML format")
+	cmd.Flags().Uint("bom-batch-size", 10, "By default BOM dependencies are authenticated/notarized in batches of up to 10 dependencies each. Use this flag to set a different batch size. A value of 0 will disable batching (all dependencies will be authenticated/notarized at once).")
+	// BOM output options
+	cmd.Flags().String("bom-spdx", "", "name of the file to output BOM in SPDX format")
+	cmd.Flags().String("bom-cdx-json", "", "name of the file to output BOM in CycloneDX JSON format")
+	cmd.Flags().String("bom-cdx-xml", "", "name of the file to output BOM in CycloneDX XML format")
 
 	cmd.Flags().String("signing-pub-key-file", "", meta.CasSigningPubKeyFileNameDesc)
 	cmd.Flags().String("signing-pub-key", "", meta.CasSigningPubKeyDesc)
@@ -220,13 +219,13 @@ func runVerify(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	// any set 'bom-xxx' option, except 'bom-what-includes', implies BoM
+	// any set 'bom-xxx' option, except 'bom-what-includes', implies BOM
 	bomFlag := viper.GetBool("bom") ||
 		viper.IsSet("bom-trust-level") ||
 		viper.IsSet("bom-max-unsupported") ||
 		viper.IsSet("bom-spdx") ||
-		viper.IsSet("bom-cyclonedx-json") ||
-		viper.IsSet("bom-cyclonedx-xml") ||
+		viper.IsSet("bom-cdx-json") ||
+		viper.IsSet("bom-cdx-xml") ||
 		viper.IsSet("bom-batch-size")
 
 	if bomFlag {
@@ -239,10 +238,10 @@ func runVerify(cmd *cobra.Command, args []string) error {
 	var bomArtifact artifact.Artifact
 	if bomFlag {
 		if len(hashes)+len(args) > 1 {
-			return fmt.Errorf("asset selection criteria match several assets - BoM can be processed only for single asset")
+			return fmt.Errorf("asset selection criteria match several assets - BOM can be processed only for single asset")
 		}
 		if len(hashes)+len(args) < 1 {
-			return fmt.Errorf("asset selection criteria don't match any assets - BoM cannot be processed")
+			return fmt.Errorf("asset selection criteria don't match any assets - BOM cannot be processed")
 		}
 
 		if len(hashes) > 0 {

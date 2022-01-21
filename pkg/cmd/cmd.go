@@ -73,7 +73,7 @@ func init() {
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	viper.AutomaticEnv()
 
-	// Set config files directory based on os.TempDir method ( Linux: /temp/.cas, Windows: c:\temp, c:\windows\temp )
+	// Set config files directory in user home
 	if err := store.SetDefaultDir(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -87,7 +87,7 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "caspath", "", "config files (default is /tmp/.cas/config.json on linux, c:\\temp\\config.json or c:\\windows\\temp\\config.json on Windows)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "caspath", "", "config files (default is user home directory)")
 	rootCmd.PersistentFlags().StringP("output", "o", "", "output format, one of: --output=json|--output=''")
 	rootCmd.PersistentFlags().BoolP("silent", "S", false, "silent mode, don't show progress spinner, but it will still output the result")
 	rootCmd.PersistentFlags().BoolP("quit", "q", true, "if false, ask for confirmation before quitting")
@@ -111,7 +111,7 @@ func init() {
 	rootCmd.AddCommand(login.NewCommand())
 	rootCmd.AddCommand(logout.NewCommand())
 
-	// BoM
+	// BOM
 	rootCmd.AddCommand(bom.NewCommand())
 
 	// List

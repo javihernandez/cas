@@ -49,11 +49,11 @@ func NewCommand() *cobra.Command {
 	cmd := makeCommand()
 	cmd.Flags().Bool("bom", false, "auto-notarize asset dependencies and link dependencies to the asset")
 	cmd.Flags().String("bom-signerID", "", "signerID to use for authenticating dependencies")
-	cmd.Flags().Uint("bom-batch-size", 10, "By default BoM dependencies are authenticated/notarized in batches of up to 10 dependencies each. Use this flag to set a different batch size. A value of 0 will disable batching (all dependencies will be authenticated/notarized at once).")
-	// BoM output options
-	cmd.Flags().String("bom-spdx", "", "name of the file to output BoM in SPDX format")
-	cmd.Flags().String("bom-cyclonedx-json", "", "name of the file to output BoM in CycloneDX JSON format")
-	cmd.Flags().String("bom-cyclonedx-xml", "", "name of the file to output BoM in CycloneDX XML format")
+	cmd.Flags().Uint("bom-batch-size", 10, "By default BOM dependencies are authenticated/notarized in batches of up to 10 dependencies each. Use this flag to set a different batch size. A value of 0 will disable batching (all dependencies will be authenticated/notarized at once).")
+	// BOM output options
+	cmd.Flags().String("bom-spdx", "", "name of the file to output BOM in SPDX format")
+	cmd.Flags().String("bom-cdx-json", "", "name of the file to output BOM in CycloneDX JSON format")
+	cmd.Flags().String("bom-cdx-xml", "", "name of the file to output BOM in CycloneDX XML format")
 	return cmd
 }
 
@@ -195,8 +195,8 @@ func runSignWithState(cmd *cobra.Command, args []string, state meta.Status) erro
 	bomFlag := viper.GetBool("bom") ||
 		viper.IsSet("bom-signerID") ||
 		viper.IsSet("bom-spdx") ||
-		viper.IsSet("bom-cyclonedx-json") ||
-		viper.IsSet("bom-cyclonedx-xml") ||
+		viper.IsSet("bom-cdx-json") ||
+		viper.IsSet("bom-cdx-xml") ||
 		viper.IsSet("bom-batch-size")
 
 	artifacts := make([]*api.Artifact, 0, 1)
@@ -233,7 +233,7 @@ func runSignWithState(cmd *cobra.Command, args []string, state meta.Status) erro
 
 	var bomArtifact artifact.Artifact
 	if bomFlag {
-		// if bom-file specified, use BoM data from file, otherwise resolve dependencies
+		// if bom-file specified, use BOM data from file, otherwise resolve dependencies
 		if len(args) != 1 {
 			return fmt.Errorf("--bom option can be used only with single asset")
 		}
@@ -279,7 +279,7 @@ func runSignWithState(cmd *cobra.Command, args []string, state meta.Status) erro
 			return err
 		}
 
-		err = bom.Output(bomArtifact) // process all possible BoM output options
+		err = bom.Output(bomArtifact) // process all possible BOM output options
 		if err != nil {
 			// show warning, but not error, because authentication finished
 			fmt.Println(err)
@@ -363,7 +363,7 @@ func notarizeDeps(lcUser *api.LcUser, deps []artifact.Dependency, outputOpts art
 	for i := range deps { // Authenticate mutates the dependency, so use the index
 		if errs[i] != nil {
 			return nil, fmt.Errorf("cannot authenticate %s@%s dependency: %w",
-				deps[i].SignerID, deps[i].Version, errs[i])
+				deps[i].Name, deps[i].Version, errs[i])
 		}
 		if deps[i].TrustLevel < artifact.Unknown {
 			msgs = append(msgs, fmt.Sprintf("Dependency %s@%s trust level is %s",
@@ -413,7 +413,7 @@ func notarizeDeps(lcUser *api.LcUser, deps []artifact.Dependency, outputOpts art
 
 	bom := make([]*schema.VCNDependency, 0, len(deps))
 	for i := range deps {
-		// add dep key to BoM list for attaching
+		// add dep key to BOM list for attaching
 		depType := schema.VCNDependency_Direct
 		if deps[i].Type == artifact.DepTransient {
 			depType = schema.VCNDependency_Indirect

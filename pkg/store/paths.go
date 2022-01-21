@@ -11,6 +11,8 @@ package store
 import (
 	"os"
 	"path/filepath"
+
+	"github.com/mitchellh/go-homedir"
 )
 
 var dir = DefaultDirName
@@ -29,17 +31,19 @@ func defaultConfigFilepath() string {
 	return filepath.Join(dir, configFilename)
 }
 
-// SetDefaultDir sets the default store working directory (eg. /tmp/.cas)
+// SetDefaultDir sets the default store working directory
 func SetDefaultDir() error {
 	// Find home directory
-	tmpDir := os.TempDir()
-	cas := DefaultDirName
+	home, err := homedir.Dir()
+	if err != nil {
+		return err
+	}
 
-	SetDir(filepath.Join(tmpDir, cas))
+	SetDir(filepath.Join(home, DefaultDirName))
 	return nil
 }
 
-// SetDir sets the store working directory (eg. /tmp/.cas)
+// SetDir sets the store working directory
 func SetDir(p string) {
 	dir = p
 }
@@ -52,12 +56,12 @@ func ConfigFile() string {
 	return configFilepath
 }
 
-// SetConfigFile sets the config file path (e.g. /tmp/.cas/config.json)
+// SetConfigFile sets the config file path
 func SetConfigFile(filepath string) {
 	configFilepath = filepath
 }
 
-// CurrentConfigFilePath returns the current config file path (e.g. /tmp/.cas/config.json)
+// CurrentConfigFilePath returns the current config file path
 func CurrentConfigFilePath() string {
 	return dir
 }

@@ -34,7 +34,7 @@ func Output(a artifact.Artifact) error {
 		}
 	}
 
-	filename = viper.GetString("bom-cyclonedx-json")
+	filename = viper.GetString("bom-cdx-json")
 	if filename != "" {
 		err := OutputCycloneDX(a, filename, cyclonedx.BOMFileFormatJSON)
 		if err != nil {
@@ -42,7 +42,7 @@ func Output(a artifact.Artifact) error {
 		}
 	}
 
-	filename = viper.GetString("bom-cyclonedx-xml")
+	filename = viper.GetString("bom-cdx-xml")
 	if filename != "" {
 		err := OutputCycloneDX(a, filename, cyclonedx.BOMFileFormatXML)
 		if err != nil {

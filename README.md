@@ -237,12 +237,6 @@ cas notarize git://<path_to_git_repo>
 cas notarize --hash <hash>
 ```
 
-By default all assets are notarized private, so not much information is disclosed about the asset. If you want to make that public and therefore, more trusted, please use the `--public` flag.
-
-```
-cas notarize --public <asset>
-```
-
 Change the asset's status:
 
 ```

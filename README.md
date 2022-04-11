@@ -15,10 +15,6 @@ Powered by Codenotary's digital identity infrastructure, CAS lets you Attest all
 <br/>
 Everything is done in a global, collaborative way to break the common silo solution architecture. Leveraging an immutable always-on platform allows you to avoid complex setup of Certificate authorities or digital certificates (that are unfit for DevOps anyway).
 
-----
-> :warning: **From version v0.10 a major refactoring has replaced the old VCN CLI. While the old VCN versions are available to download in the release section, we don't provide support and maintenance anymore.**
-----
-
 ## Table of contents
 
 - [Quick start](#quick-start)

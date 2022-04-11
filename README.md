@@ -8,7 +8,7 @@
 
 Give any digital asset a meaningful, globally-unique, immutable identity that is authentic, verifiable, traceable from anywhere.
 
-<img align="right" src="https://cas.codenotary.com/_nuxt/img/logo-cas--light.810fcf3.svg" width="256px"/>
+<img align="right" src="https://cas.codenotary.com/_nuxt/src/static/images/logo-cas.svg" width="256px"/>
 When using Codenotary CAS in source code, release, deployment or at runtime, you allow a continuous trust verification that can be used to detect unusual or unwanted activity in your workload and act on it.
 <br/>
 Powered by Codenotary's digital identity infrastructure, CAS lets you Attest all your digital assets that add a trust level of your choice, custom attributes and meaningful status without touching or appending anything (unlike digital certificates). That allows change and revocation post-release without breaking any customer environment.

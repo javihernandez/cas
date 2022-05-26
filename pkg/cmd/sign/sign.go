@@ -282,7 +282,7 @@ func runSignWithState(cmd *cobra.Command, args []string, state meta.Status) erro
 		err = bom.Output(bomArtifact) // process all possible BOM output options
 		if err != nil {
 			// show warning, but not error, because authentication finished
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, err)
 		}
 		if outputOpts != artifact.Silent {
 			artifact.Display(bomArtifact, artifact.ColNameVersion|artifact.ColHash|artifact.ColTrustLevel)

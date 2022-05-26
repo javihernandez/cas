@@ -2,6 +2,7 @@ package sign
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/caarlos0/spin"
 	"github.com/codenotary/cas/pkg/api"
@@ -50,9 +51,9 @@ func LcSign(u *api.LcUser, artifacts []*api.Artifact, state meta.Status, output 
 		if err != nil {
 			if err == api.ErrNotVerified {
 				color.Set(meta.StyleError())
-				fmt.Println("the ledger is compromised. Please contact the Community Attestation Service administrators")
+				fmt.Fprintln(os.Stderr, "the ledger is compromised. Please contact the Community Attestation Service administrators")
 				color.Unset()
-				fmt.Println()
+				fmt.Fprintln(os.Stderr)
 				return nil
 			}
 			return err
@@ -69,9 +70,9 @@ func LcSign(u *api.LcUser, artifacts []*api.Artifact, state meta.Status, output 
 		if err != nil {
 			if err == api.ErrNotVerified {
 				color.Set(meta.StyleError())
-				fmt.Println("the ledger is compromised. Please contact the Community Attestation Service administrators")
+				fmt.Fprintln(os.Stderr, "the ledger is compromised. Please contact the Community Attestation Service administrators")
 				color.Unset()
-				fmt.Println()
+				fmt.Fprintln(os.Stderr)
 				return nil
 			}
 			return cli.PrintWarning(output, err.Error())

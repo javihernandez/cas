@@ -14,6 +14,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"math"
+	"os"
 	"strings"
 	"time"
 
@@ -157,7 +158,7 @@ func runList(cmd *cobra.Command, args []string) error {
 
 	if first == 0 && last == 0 {
 		last = defaultLimit
-		fmt.Printf("no filter is specified. At maximum last %d items will be returned\n\n", defaultLimit)
+		fmt.Fprintf(os.Stderr, "no filter is specified. At maximum last %d items will be returned\n\n", defaultLimit)
 	}
 
 	return list(lcUser, ApiKey, timeStart, timeEnd, first, last, output)

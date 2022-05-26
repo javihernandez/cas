@@ -145,7 +145,7 @@ func processBOM(lcUser *api.LcUser, signerID, output, hash, path string) (artifa
 	for i := range deps { // Authenticate mutates the dependency, so use the index
 		if errs[i] != nil {
 			fmt.Fprintf(os.Stderr, "cannot authenticate %s@%s dependency: %v\n",
-				deps[i].SignerID, deps[i].Version, errs[i])
+				deps[i].Name, deps[i].Version, errs[i])
 			continue
 		}
 		if deps[i].TrustLevel < trustLevel {

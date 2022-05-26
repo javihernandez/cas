@@ -7,7 +7,7 @@ require (
 	github.com/anchore/go-rpmdb v0.0.0-20210602151223-1f0f707a2894
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/caarlos0/spin v1.1.0
-	github.com/codenotary/immudb v1.2.1
+	github.com/codenotary/immudb v1.3.0
 	github.com/containerd/containerd v1.5.7 // indirect
 	github.com/dghubble/sling v1.3.0
 	github.com/docker/docker v20.10.8+incompatible
@@ -28,9 +28,13 @@ require (
 	github.com/spf13/viper v1.10.1
 	github.com/stretchr/testify v1.7.0
 	github.com/vchain-us/ledger-compliance-go v0.9.3-0.20220118134549-9591b15eb645
-	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
-	google.golang.org/grpc v1.43.0
+	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e
+	golang.org/x/net v0.0.0-20220524220425-1d687d428aca // indirect
+	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
+	google.golang.org/genproto v0.0.0-20220525015930-6ca3db687a9d // indirect
+	google.golang.org/grpc v1.46.2
 	gopkg.in/src-d/go-git.v4 v4.13.1
+	gopkg.in/yaml.v3 v3.0.0 // indirect
 )
 
 replace github.com/spf13/afero => github.com/spf13/afero v1.5.1

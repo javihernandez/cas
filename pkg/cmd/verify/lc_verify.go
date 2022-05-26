@@ -2,6 +2,7 @@ package verify
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/codenotary/cas/pkg/api"
@@ -27,9 +28,9 @@ func lcVerify(cmd *cobra.Command, a *api.Artifact, user *api.LcUser, signerID st
 		}
 		if err == api.ErrNotVerified {
 			color.Set(meta.StyleError())
-			fmt.Println("the ledger is compromised. Please contact the Community Attestation Service administrators")
+			fmt.Fprintln(os.Stderr, "the ledger is compromised. Please contact the Community Attestation Service administrators")
 			color.Unset()
-			fmt.Println()
+			fmt.Fprintln(os.Stderr)
 			viper.Set("exit-code", strconv.Itoa(meta.StatusUnknown.Int()))
 		}
 		return cli.PrintWarning(output, err.Error())

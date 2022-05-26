@@ -13,6 +13,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -22,13 +23,13 @@ import (
 	"github.com/spf13/viper"
 	"google.golang.org/grpc/metadata"
 
-	immuschema "github.com/codenotary/immudb/pkg/api/schema"
 	"github.com/codenotary/cas/pkg/api"
 	"github.com/codenotary/cas/pkg/bom"
 	"github.com/codenotary/cas/pkg/bom/artifact"
 	"github.com/codenotary/cas/pkg/bom/docker"
 	"github.com/codenotary/cas/pkg/meta"
 	"github.com/codenotary/cas/pkg/uri"
+	immuschema "github.com/codenotary/immudb/pkg/api/schema"
 )
 
 var trustLevelMap = map[string]artifact.TrustLevel{
@@ -143,8 +144,8 @@ func processBOM(lcUser *api.LcUser, signerID, output, hash, path string) (artifa
 	lowestLevel := artifact.Trusted
 	for i := range deps { // Authenticate mutates the dependency, so use the index
 		if errs[i] != nil {
-			fmt.Printf("cannot authenticate %s@%s dependency: %v\n",
-				deps[i].SignerID, deps[i].Version, errs[i])
+			fmt.Fprintf(os.Stderr, "cannot authenticate %s@%s dependency: %v\n",
+				deps[i].Name, deps[i].Version, errs[i])
 			continue
 		}
 		if deps[i].TrustLevel < trustLevel {
@@ -168,7 +169,7 @@ func processBOM(lcUser *api.LcUser, signerID, output, hash, path string) (artifa
 	err = bom.Output(bomArtifact)
 	if err != nil {
 		// show warning, but not error, because authentication finished
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 	}
 
 	if failed {
@@ -235,7 +236,7 @@ func getDeps(hash string, signerID string, lcUser *api.LcUser, ctx context.Conte
 		var p pkg
 		err := json.Unmarshal(v.Item.Entry.Value, &p)
 		if err != nil {
-			fmt.Printf("cannot parse JSON: %v\n", err)
+			fmt.Fprintf(os.Stderr, "cannot parse JSON: %v\n", err)
 			continue
 		}
 		level, ok := trustLevelMap[meta.Status(p.Status)]

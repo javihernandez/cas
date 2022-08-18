@@ -19,7 +19,7 @@ Thanks! -->
 
 **Environment**
 ```shell
-# run "cas info" and copy/paste the output here
+# run "cas --version" and copy/paste the output here
 ```
 
 **Additional info (any other context about the problem)**
